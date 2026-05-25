@@ -236,7 +236,7 @@ const initSim = () => {
   return result
 }
 
-const highlightElements = (fromId, toId) => {
+const highlightElements = () => {
     const svg = d3.select(svgRef.value)
     // Reset all
     svg.selectAll('rect.node-rect')
@@ -247,33 +247,54 @@ const highlightElements = (fromId, toId) => {
       .attr('stroke', '#2d4a6b')
       .attr('stroke-width', 1.5)
 
+    if (!simResult.value || !steps.value) return;
+
     const isAccepted = resultAccepted.value;
     const isDone = done.value;
-    const color = isDone ? (isAccepted ? '#c8ff00' : '#ff4444') : '#00e5ff';
+    const activeColor = isDone ? (isAccepted ? '#c8ff00' : '#ff4444') : '#00e5ff';
+    const trailColor = isDone ? (isAccepted ? '#c8ff00' : '#ff4444') : '#32ff7e';
 
-    if (toId) {
-        svg.select(`#node-${toId}`)
-          .attr('stroke', color)
-          .attr('stroke-width', 2.5)
-          .style('filter', `drop-shadow(0 0 10px ${color})`);
-    } else if (fromId && !toId) {
-        svg.select(`#node-${fromId}`)
-          .attr('stroke', '#ff4444')
-          .attr('stroke-width', 2.5)
-          .style('filter', `drop-shadow(0 0 10px #ff4444)`);
-    }
-
-    if (fromId && toId) {
-        const char = currentStep.value?.char;
-        if (char) {
-            const specificLink = svg.select(`#link-${fromId}-${toId}-${char}`);
-            if (!specificLink.empty()) {
-                specificLink.attr('stroke', color).attr('stroke-width', 2.5);
-            } else {
-                svg.select(`#link-${fromId}-${toId}`).attr('stroke', color).attr('stroke-width', 2.5);
+    // Highlight all visited paths (the trail)
+    for (let i = 0; i <= stepIndex.value; i++) {
+        const step = steps.value[i];
+        if (!step) continue;
+        
+        const stateId = step.state;
+        
+        // Highlight edge from previous to current
+        if (i > 0) {
+            const prevStep = steps.value[i - 1];
+            if (prevStep && prevStep.state && stateId) {
+                const pState = prevStep.state;
+                svg.selectAll(`path[id^="link-${pState}-${stateId}-"]`)
+                   .attr('stroke', trailColor)
+                   .attr('stroke-width', 2);
             }
-        } else {
-            svg.select(`path[id^="link-${fromId}-${toId}"]`).attr('stroke', color).attr('stroke-width', 2.5);
+        }
+
+        // Highlight node
+        if (stateId) {
+            const isLast = (i === stepIndex.value);
+            const color = isLast ? activeColor : trailColor;
+            const width = isLast ? 2.5 : 2;
+            const filter = isLast ? `drop-shadow(0 0 10px ${color})` : null;
+            
+            svg.select(`#node-${stateId}`)
+              .attr('stroke', color)
+              .attr('stroke-width', width)
+              .style('filter', filter);
+        }
+    }
+    
+    // If the last step is a dead state (null), color the last known state red
+    const currentStepData = steps.value[stepIndex.value];
+    if (currentStepData && currentStepData.dead) {
+        const prevStep = steps.value[stepIndex.value - 1];
+        if (prevStep && prevStep.state) {
+            svg.select(`#node-${prevStep.state}`)
+              .attr('stroke', '#ff4444')
+              .attr('stroke-width', 2.5)
+              .style('filter', `drop-shadow(0 0 10px #ff4444)`);
         }
     }
 }
@@ -283,7 +304,7 @@ const advance = (result, idx) => {
   const to = result.steps[idx + 1]?.state
   stepIndex.value = idx + 1
 
-  highlightElements(from, to)
+  highlightElements()
 
   if (idx + 1 >= result.steps.length - 1) done.value = true
 }
@@ -297,7 +318,7 @@ const runAuto = () => {
   stepIndex.value = 0
   done.value = false
 
-  highlightElements(null, result.steps[0].state)
+  highlightElements()
 
   const max = result.steps.length - 1
   autoTimer.value = setInterval(() => {
@@ -306,7 +327,7 @@ const runAuto = () => {
       autoTimer.value = null
       isRunning.value = false
       done.value = true
-      highlightElements(null, result.steps[max].state)
+      highlightElements()
       return
     }
     advance(result, idx)
