@@ -1,13 +1,10 @@
 <script setup>
 import { ref, watch, onMounted, computed } from 'vue'
-import * as d3 from 'd3'
 
 const props = defineProps({
     problemId: { type: Number, required: true },
     testString: { type: String, default: '' }
 })
-
-const svgRef = ref(null)
 
 const CFG_DATA = {
     1: {
@@ -22,11 +19,11 @@ const CFG_DATA = {
             { lhs: 'F', alts: ['babF', 'abaF', 'λ'] },
             { lhs: 'G', alts: ['aG', 'bG', 'λ'] },
         ],
-        terminals: ['a', 'b', 'ε'],
-        nonTerminals: ['S', 'A', 'B', 'C', 'D', 'E', 'F']
+        terminals: ['a', 'b', 'λ', '(', ')'],
+        nonTerminals: ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G']
     },
     2: {
-        startSymbol: 'S', //changed to current problem for group 
+        startSymbol: 'S',
         productions: [
             { lhs: 'S', alts: ['A B C D A E A F'] },
             { lhs: 'A', alts: ['1A', '0A', 'λ'] },
@@ -36,14 +33,14 @@ const CFG_DATA = {
             { lhs: 'E', alts: ['101', '01', '000'] },
             { lhs: 'F', alts: ['101F', '000F', 'λ'] },
         ],
-        terminals: ['0', '1'],
+        terminals: ['0', '1', 'λ'],
         nonTerminals: ['S', 'A', 'B', 'C', 'D', 'E', 'F']
     }
 }
 
 const REGEX_MAP = {
-  1: '(b+aa+ab)(a+b)*(bb+aba+ab)*(aaa+bbb)(a+b)(a+b+ab)*',
-  2: '(1+0)*(11+00+101+010)(1+0+11+00+101)*(11+00)(11+00+101)*(1+0)(1+0+11)*'
+  1: '(bab+bbb) b* a* (a*+b*) (ab)* (aba) (bab+aba)* bb (a+b)* (bab+aba) (a+b)*',
+  2: '(1+0)* 0* 1* (111+00+101) (1+0)* (101+01+000) (1+0)* (101+000)*'
 }
 
 const cfg = computed(() => CFG_DATA[props.problemId] || CFG_DATA[1])
@@ -51,123 +48,127 @@ const problemRegex = computed(() => REGEX_MAP[props.problemId])
 const hoveredRow = ref(null)
 
 const tokenizeAlt = (alt) => {
-    return [...alt].map(ch => ({
-        ch,
-        isNT: cfg.value.nonTerminals.includes(ch)
-    }))
+    const tokens = []
+    let i = 0
+    while (i < alt.length) {
+        if (alt[i] === '(' || alt[i] === ')') {
+            // Ignore grouping parens in the grammar string representation
+            i++
+        } else if (alt[i] !== ' ') {
+            tokens.push({ text: alt[i], isNT: cfg.value.nonTerminals.includes(alt[i]) })
+            i++
+        } else {
+            i++
+        }
+    }
+    return tokens
 }
 
-const generateDerivationTree = (inputStr, cfgData) => {
-    if (!inputStr) return null
-    const symbols = inputStr.split('')
-    const root = { id: 'root', name: cfgData.startSymbol, children: [] }
-    let currentLevel = [root]
-    let symbolIndex = 0
-    let depth = 0
-    const maxDepth = 20
-    while (symbolIndex < symbols.length && depth < maxDepth) {
-        const nextLevel = []
-        for (const node of currentLevel) {
-            if (cfgData.nonTerminals.includes(node.name)) {
-                const matchingProd = cfgData.productions.find(p => {
-                    if (p.lhs !== node.name) return false
-                    const rhsStr = p.rhs.join('')
-                    return rhsStr.includes(symbols[symbolIndex]) ||
-                           (cfgData.nonTerminals.some(nt => rhsStr.includes(nt)))
-                })
-                if (matchingProd) {
-                    const children = matchingProd.rhs.map((sym, i) => ({
-                        id: `${node.id}-${i}`,
-                        name: sym,
-                        children: cfgData.nonTerminals.includes(sym) ? [] : undefined
-                    }))
-                    node.children = children
-                    nextLevel.push(...children.filter(c => cfgData.nonTerminals.includes(c.name)))
-                } else {
-                    node.children = [{ id: `${node.id}-t`, name: symbols[symbolIndex], children: undefined }]
-                    symbolIndex++
+// DFS Backtracking for Leftmost Derivation
+const derivationSteps = computed(() => {
+    if (!props.testString) return []
+    
+    let bestResult = null
+    let longestPrefixLength = -1
+    let bestFailedTrace = []
+    
+    const MAX_STEPS = 5000
+    let iterations = 0
+    
+    const dfs = (currentTokens, steps) => {
+        if (bestResult) return
+        if (iterations++ > MAX_STEPS) return
+        
+        const ntIdx = currentTokens.findIndex(t => t.isNT)
+        
+        // If no NTs left, check if exact match
+        if (ntIdx === -1) {
+            const derivedStr = currentTokens.map(t => t.text).join('').replace(/λ/g, '')
+            if (derivedStr === props.testString) {
+                bestResult = [...steps, {
+                    step: steps.length,
+                    stringTokens: currentTokens.map(t => ({ text: t.text, isExpandedNT: false })),
+                    rule: 'Valid',
+                    isFinal: true
+                }]
+            } else {
+                if (derivedStr.length > longestPrefixLength) {
+                    longestPrefixLength = derivedStr.length
+                    bestFailedTrace = [...steps]
                 }
             }
+            return
         }
-        currentLevel = nextLevel
-        depth++
+        
+        // Pruning based on prefix
+        let prefixStr = ''
+        for (let i = 0; i < ntIdx; i++) {
+            if (currentTokens[i].text !== 'λ') {
+                prefixStr += currentTokens[i].text
+            }
+        }
+        
+        // Track the furthest valid path before we prune
+        if (prefixStr.length > longestPrefixLength || (prefixStr.length === longestPrefixLength && steps.length > bestFailedTrace.length)) {
+            longestPrefixLength = prefixStr.length
+            bestFailedTrace = [...steps]
+        }
+        
+        if (!props.testString.startsWith(prefixStr)) {
+            return
+        }
+        
+        const nt = currentTokens[ntIdx].text
+        const prod = cfg.value.productions.find(p => p.lhs === nt)
+        if (!prod) return
+        
+        const displayTokens = currentTokens.map((t, idx) => ({
+            text: t.text,
+            isExpandedNT: idx === ntIdx
+        }))
+        
+        for (const alt of prod.alts) {
+            let replacement = tokenizeAlt(alt)
+            if (alt === 'λ') replacement = [{ text: 'λ', isNT: false }]
+            
+            const nextTokens = [...currentTokens]
+            nextTokens.splice(ntIdx, 1, ...replacement)
+            
+            const nextSteps = [...steps, {
+                step: steps.length,
+                stringTokens: displayTokens,
+                rule: `${nt} → ${alt}`
+            }]
+            
+            dfs(nextTokens, nextSteps)
+        }
     }
-    while (symbolIndex < symbols.length) {
-        const lastNonTerminal = findLastNonTerminal(root)
-        if (lastNonTerminal) {
-            lastNonTerminal.children = lastNonTerminal.children || []
-            lastNonTerminal.children.push({
-                id: `${lastNonTerminal.id}-${symbolIndex}`,
-                name: symbols[symbolIndex],
-                children: undefined
+    
+    const initialTokens = [{ text: cfg.value.startSymbol, isNT: true }]
+    dfs(initialTokens, [])
+    
+    if (!bestResult) {
+        if (bestFailedTrace.length > 0) {
+            const failedTrace = [...bestFailedTrace]
+            // Add a failure indicator step
+            failedTrace.push({
+                step: failedTrace.length,
+                stringTokens: [{ text: 'Mismatch Detected', isExpandedNT: false }],
+                rule: 'Invalid',
+                isInvalid: true
             })
+            return failedTrace
         }
-        symbolIndex++
+        return [{ step: '-', stringTokens: [{ text: 'Invalid String', isExpandedNT: false }], rule: 'Fail', isInvalid: true }]
     }
-    return root
-}
+    
+    return bestResult
+})
 
-const findLastNonTerminal = (node) => {
-    if (!node.children || node.children.length === 0) {
-        return cfg.value.nonTerminals.includes(node.name) ? node : null
-    }
-    for (let i = node.children.length - 1; i >= 0; i--) {
-        const result = findLastNonTerminal(node.children[i])
-        if (result) return result
-    }
-    return null
-}
-
-const treeData = computed(() => generateDerivationTree(props.testString, cfg.value))
-
-const renderTree = () => {
-    if (!svgRef.value) return
-    const data = treeData.value
-    if (!data) { renderGrammar(); return }
-    d3.select(svgRef.value).selectAll("*").remove()
-    const svg = d3.select(svgRef.value).attr("width", "100%").style("overflow", "visible")
-    svg.append("defs").selectAll("marker").data(["end"]).enter().append("marker")
-        .attr("id", "arrow-cfg").attr("viewBox", "0 -5 10 10")
-        .attr("refX", 0).attr("refY", 0).attr("markerWidth", 6).attr("markerHeight", 6).attr("orient", "auto")
-        .append("path").attr("d", "M0,-5L10,0L0,5").attr("fill", "#666")
-    const margin = { top: 40, right: 90, bottom: 30, left: 90 }
-    const width = 800 - margin.left - margin.right
-    const height = 400 - margin.top - margin.bottom
-    const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`)
-    const tree = d3.tree().size([width, height])
-    const root = d3.hierarchy(data)
-    tree(root)
-    g.selectAll(".link").data(root.links()).enter().append("path")
-        .attr("class", "link").attr("fill", "none").attr("stroke", "#666").attr("stroke-width", 2)
-        .attr("marker-end", "url(#arrow-cfg)").attr("d", d3.linkVertical().x(d => d.x).y(d => d.y))
-    const nodes = g.selectAll(".node").data(root.descendants()).enter().append("g")
-        .attr("class", "node").attr("transform", d => `translate(${d.x},${d.y})`)
-    nodes.append("circle").attr("r", 18)
-        .attr("fill", d => !cfg.value.nonTerminals.includes(d.data.name) ? '#4caf50' : '#ff9800')
-        .attr("stroke", "#fff").attr("stroke-width", 2)
-    nodes.append("text").attr("dy", 4).attr("text-anchor", "middle")
-        .attr("font-size", "14px").attr("font-weight", "bold").attr("fill", "white")
-        .text(d => d.data.name)
-    svg.attr("viewBox", `0 0 ${width + margin.left + margin.right} ${height + margin.top + margin.bottom}`)
-        .style("max-width", "100%").style("height", "auto")
-}
-
-const renderGrammar = () => {
-    if (!svgRef.value) return
-    d3.select(svgRef.value).selectAll("*").remove()
-    const svg = d3.select(svgRef.value).attr("width", "100%").attr("height", "200")
-    svg.append("text").attr("x", 50).attr("y", 100).attr("font-size", "16px").attr("fill", "#666")
-        .text("Derivation tree will appear when you test a string")
-}
-
-watch(() => props.problemId, () => renderTree())
-watch(() => props.testString, () => renderTree())
-onMounted(() => renderTree())
 </script>
 
 <template>
   <div class="cfg-wrap">
-
     <!-- Header -->
     <div class="cfg-header">
       <div class="header-left">
@@ -175,8 +176,8 @@ onMounted(() => renderTree())
         <span class="title">Problem {{ problemId }}</span>
       </div>
       <div class="header-right">
-        <span class="dot nt-dot"></span><span class="leg">Non-terminal</span>
-        <span class="dot t-dot"></span><span class="leg">Terminal</span>
+        <span class="leg-item"><span class="dot nt-dot"></span>Non-terminal</span>
+        <span class="leg-item"><span class="dot t-dot"></span>Terminal</span>
       </div>
     </div>
 
@@ -186,225 +187,416 @@ onMounted(() => renderTree())
       <code class="regex-code">{{ problemRegex }}</code>
     </div>
 
-    <!-- Productions -->
-    <div class="rule-card">
-      <div class="rule-card-head">
-        <span>Productions</span>
-        <span class="rule-count">{{ cfg.productions.length }} rules</span>
+    <div class="cfg-content">
+      <!-- Productions List -->
+      <div class="rule-card">
+        <div class="rule-card-head">
+          <span>Productions</span>
+          <span class="rule-count">{{ cfg.productions.length }} rules</span>
+        </div>
+        <div class="rule-list no-scrollbar-x">
+          <div
+            v-for="(prod, idx) in cfg.productions"
+            :key="idx"
+            class="rule-row"
+            :class="{ hovered: hoveredRow === idx }"
+            @mouseenter="hoveredRow = idx"
+            @mouseleave="hoveredRow = null"
+          >
+            <span class="lhs">{{ prod.lhs }}</span>
+            <span class="arrow">→</span>
+            <span class="rhs-group">
+              <template v-for="(alt, ai) in prod.alts" :key="ai">
+                <span v-if="ai > 0" class="pipe">|</span>
+                <span
+                  v-for="(tok, ti) in tokenizeAlt(alt)"
+                  :key="ti"
+                  :class="['tok', tok.isNT ? 'nt' : 't']"
+                >{{ tok.text }}</span>
+              </template>
+            </span>
+            <span class="row-num">{{ idx + 1 }}</span>
+          </div>
+        </div>
       </div>
-      <div class="rule-list">
-        <div
-          v-for="(prod, idx) in cfg.productions"
-          :key="idx"
-          class="rule-row"
-          :class="{ hovered: hoveredRow === idx }"
-          @mouseenter="hoveredRow = idx"
-          @mouseleave="hoveredRow = null"
-        >
-          <span class="lhs">{{ prod.lhs }}</span>
-          <span class="arrow">→</span>
-          <span class="rhs-group">
-            <template v-for="(alt, ai) in prod.alts" :key="ai">
-              <span v-if="ai > 0" class="pipe">|</span>
-              <span
-                v-for="(tok, ti) in tokenizeAlt(alt)"
-                :key="ti"
-                :class="['tok', tok.isNT ? 'nt' : 't']"
-              >{{ tok.ch }}</span>
-            </template>
+
+      <!-- Simulation Trace -->
+      <div class="sim-card">
+        <div class="rule-card-head trace-head">
+          <span style="display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            DERIVATION TRACE
           </span>
-          <span class="row-num">{{ idx + 1 }}</span>
+          <span class="rule-count" v-if="testString">Running</span>
+          <span class="rule-count" v-else>Waiting for input</span>
+        </div>
+        
+        <div class="trace-container no-scrollbar-x" v-if="testString">
+          <div class="trace-list">
+            <div 
+              v-for="step in derivationSteps" 
+              :key="step.step" 
+              :class="['trace-row', step.isFinal ? 'valid-final' : '', step.isInvalid ? 'invalid-final' : '']"
+            >
+              <div class="step-num">Step {{ step.step }}</div>
+              
+              <div class="trace-string">
+                <template v-for="(tok, idx) in step.stringTokens" :key="idx">
+                  <template v-if="tok.text !== 'λ' || step.stringTokens.length === 1">
+                    <span v-if="tok.isExpandedNT" class="highlight-nt">(<span class="cyan-txt">{{ tok.text }}</span>)</span>
+                    <span v-else class="dim-txt">{{ tok.text }}</span>
+                  </template>
+                </template>
+              </div>
+
+              <div class="step-icon" v-if="step.isFinal && step.rule === 'Valid'">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              </div>
+              <div class="step-icon invalid-icon" v-if="step.isInvalid">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" v-else>
+          Enter a test string below to see the leftmost derivation trace.
         </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <style scoped>
+/* ========== AUTOMATALAB DARK TERMINAL UI ========== */
 .cfg-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-
-    max-width: 900px;        /* 🔥 LIMIT WIDTH */
-    margin: 20px auto;       /* 🔥 CENTER IT */
-    padding: 1.2rem;
-
-    background: #ffffff;     /* 🔥 make it a card */
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  background: #0a0a0f;
+  color: #c8d0e0;
+  font-family: 'Space Mono', monospace;
+  overflow-y: auto;
 }
 
 /* Header */
 .cfg-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1e2d3d;
 }
+
 .header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+
 .badge {
-    background: #1e1e2e;
-    color: #cdd6f4;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    padding: 3px 8px;
-    border-radius: 5px;
+  background: rgba(0, 229, 255, 0.1);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
+
 .title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e1e2e;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
+
 .header-right {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
+  display: flex;
+  gap: 16px;
 }
+
+.leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #8b9bb4;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
 }
-.nt-dot { background: #f59e0b; }
-.t-dot  { background: #10b981; margin-left: 0.6rem; }
-.leg {
-    font-size: 12px;
-    color: #6b7280;
-}
+
+.nt-dot { background: #f0a500; box-shadow: 0 0 8px rgba(240, 165, 0, 0.4); }
+.t-dot  { background: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.4); }
 
 /* Regex */
 .regex-wrap {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.6rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.6rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #111827;
+  border: 1px solid #1e2d3d;
+  border-radius: 4px;
+  padding: 12px 16px;
 }
+
 .regex-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding-top: 2px;
-    white-space: nowrap;
+  font-size: 10px;
+  color: #00e5ff;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
+
 .regex-code {
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: #334155;
-    word-break: break-all;
-    line-height: 1.6;
+  color: #c8d0e0;
+  font-size: 13px;
+  word-break: break-all;
+  line-height: 1.5;
 }
 
-/* Rule card */
-.rule-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
+/* Content Layout */
+.cfg-content {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 16px;
+  align-items: start;
 }
+
+@media (max-width: 1000px) {
+  .cfg-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Rule Card & Table Card */
+.rule-card, .sim-card {
+  background: #111827;
+  border: 1px solid #1e2d3d;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
 .rule-card-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.55rem 1rem;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-}
-.rule-count {
-    font-size: 11px;
-    font-weight: 500;
-    color: #94a3b8;
-    background: #f1f5f9;
-    padding: 2px 8px;
-    border-radius: 20px;
-    border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: rgba(30, 45, 61, 0.4);
+  border-bottom: 1px solid #1e2d3d;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8b9bb4;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
-/* Rule rows */
+.rule-count {
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+/* Productions List */
 .rule-list {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
 }
+
 .rule-row {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    padding: 0.5rem 1rem;
-    border-bottom: 1px solid #f1f5f9;
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
-    transition: background 0.15s;
-    cursor: default;
-    position: relative;
+  display: flex;
+  align-items: flex-start;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(30, 45, 61, 0.3);
+  font-size: 13px;
+  transition: background 0.2s;
+  position: relative;
 }
+
 .rule-row:last-child {
-    border-bottom: none;
+  border-bottom: none;
 }
+
 .rule-row.hovered {
-    background: #fafafa;
-}
-.rule-row.hovered .lhs {
-    color: #d97706;
+  background: rgba(30, 45, 61, 0.4);
 }
 
 .lhs {
-    font-weight: 700;
-    color: #f59e0b;
-    min-width: 18px;
-    transition: color 0.15s;
+  font-weight: 700;
+  color: #f0a500;
+  min-width: 20px;
 }
+
 .arrow {
-    color: #cbd5e1;
-    margin: 0 0.65rem;
-    font-size: 15px;
+  color: #4a6a8a;
+  margin: 0 12px;
 }
+
 .rhs-group {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 1px;
-    flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
 }
+
 .pipe {
-    color: #cbd5e1;
-    margin: 0 0.35rem;
-    font-size: 13px;
+  color: #4a6a8a;
+  margin: 0 6px;
 }
+
 .tok {
-    font-family: 'Courier New', monospace;
-    font-size: 14px;
+  padding: 0 2px;
 }
-.tok.nt { color: #f59e0b; }
-.tok.t  { color: #10b981; }
+.tok.nt { color: #f0a500; font-weight: 700; }
+.tok.t  { color: #00e5ff; }
 
 .row-num {
-    font-size: 11px;
-    color: #e2e8f0;
-    font-family: 'Inter', sans-serif;
-    min-width: 16px;
-    text-align: right;
+  font-size: 10px;
+  color: #4a6a8a;
+  min-width: 20px;
+  text-align: right;
+  margin-left: 12px;
 }
+
 .rule-row.hovered .row-num {
-    color: #94a3b8;
+  color: #00e5ff;
+}
+
+.rule-card-head.trace-head {
+  color: #00e5ff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  border-bottom: 1px solid #1e2d3d;
+}
+
+/* Trace List */
+.trace-container {
+  max-height: 400px;
+  overflow-y: auto;
+  background: #111827;
+  padding: 12px;
+}
+
+.trace-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trace-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(30, 45, 61, 0.4);
+  border: 1px solid rgba(30, 45, 61, 0.8);
+  border-radius: 6px;
+  padding: 14px 16px;
+  position: relative;
+}
+
+.step-num {
+  font-size: 10px;
+  color: #4a6a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+  width: 60px;
+}
+
+.trace-string {
+  flex: 1;
+  text-align: center;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+  padding: 0 16px;
+}
+
+.dim-txt {
+  color: #6b7a90;
+}
+
+.highlight-nt {
+  color: #4a6a8a;
+  font-weight: 700;
+}
+
+.cyan-txt {
+  color: #00e5ff;
+}
+
+/* Valid Final Step */
+.trace-row.valid-final {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+}
+
+.trace-row.valid-final .step-num,
+.trace-row.valid-final .dim-txt {
+  color: #10b981;
+}
+
+.step-icon {
+  color: #10b981;
+  display: flex;
+  align-items: center;
+}
+
+/* Invalid Final Step */
+.trace-row.invalid-final {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+}
+
+.trace-row.invalid-final .step-num,
+.trace-row.invalid-final .dim-txt,
+.trace-row.invalid-final .highlight-nt,
+.trace-row.invalid-final .cyan-txt {
+  color: #ef4444;
+}
+
+.invalid-icon {
+  color: #ef4444;
+}
+
+.empty-state {
+  padding: 40px 20px;
+  text-align: center;
+  color: #4a6a8a;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2d3d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4a6a8a;
 }
 </style>

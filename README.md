@@ -1,6 +1,4 @@
-# automata-theory
 
-![Nier Automata GIF](./public/2b-nier-automata.gif)
 
 ## Project Setup
 

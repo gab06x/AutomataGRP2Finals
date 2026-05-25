@@ -1,148 +1,207 @@
 <script setup>
-// Minimalist User Manual with provided content
 </script>
 
 <template>
   <div class="manual-plain">
-    <h1>User Manual: Automata Simulator</h1>
-    
-    <section>
-      <h2>INTRODUCTION</h2>
-      <p>The Automata Simulator is a comprehensive educational tool designed to bridge the gap between theoretical computation and visual representation. It allows users to input regular expressions and observe how they translate into various mathematical models, including Deterministic Finite Automata (DFA), Context-Free Grammars (CFG), and Pushdown Automata (PDA).</p>
-    </section>
+    <div class="manual-header">
+      <h1 class="manual-title">AutomaTe User Guide</h1>
+      <div class="manual-subtitle">Interactive Computation & Visualization</div>
+    </div>
 
-    <section>
-      <h2>GETTING STARTED</h2>
-      <h3>System Requirements</h3>
-      <p>As a web-based application, the simulator runs on any modern browser (Chrome, Firefox, or Edge). It is optimized for desktop use to provide the best experience for complex flowchart visualizations.</p>
-      
-      <h3>Initial Setup</h3>
-      <ul>
-        <li><strong>Selection:</strong> Upon launching the application, locate the sidebar or dropdown menu containing a list of predefined Regular Expression problems.</li>
-        <li><strong>Input Testing:</strong> Enter a string (e.g., abbaba) into the designated test field to verify if it belongs to the language defined by the regex.</li>
-        <li><strong>Execution:</strong> Click the Simulate button. The system will process the logic and generate the corresponding visualization.</li>
-      </ul>
-    </section>
+    <div class="manual-content">
+      <section>
+        <h2>INTRODUCTION</h2>
+        <p>
+          Welcome to <strong>AutomaTe</strong>. This web-based platform serves as an interactive environment designed for exploring computation theory. By selecting complex regular expressions, users can instantly generate their corresponding mathematical models, transforming abstract logic into intuitive, graphical workflows. Our engine fully supports Deterministic Finite Automata (DFA), Context-Free Grammars (CFG), and Pushdown Automata (PDA).
+        </p>
+      </section>
 
-    <section>
-      <h2>CORE FEATURES & MODULES</h2>
-      
-      <h3>Deterministic Finite Automata Visualization</h3>
-      <p>The DFA module converts the selected regular expression into a state-transition diagram.</p>
-      <ul>
-        <li><strong>States:</strong> Represented by circles. The start state is indicated by an arrow, and accepting states are denoted by double circles.</li>
-        <li><strong>Transitions:</strong> Labeled arrows showing the movement between states based on specific input symbols.</li>
-        <li><strong>Interactive Playback:</strong> You can step through the simulation to see the current state highlighted in real-time as the input string is processed.</li>
-      </ul>
+      <section>
+        <h2>GETTING STARTED</h2>
+        
+        <h3>Compatibility</h3>
+        <p>
+          AutomaTe runs entirely within your browser and requires no installation. While it supports all modern browsers (Chrome, Edge, Firefox), we highly recommend using a desktop environment to ensure the complex diagrams scale correctly.
+        </p>
+        
+        <h3>Basic Workflow</h3>
+        <ul>
+          <li><strong>Select a Problem:</strong> Navigate to the left sidebar to choose from a list of predefined Regular Expression challenges.</li>
+          <li><strong>Input Testing:</strong> Use the Test Terminal at the bottom of the screen to type out your target string (e.g., babababbaba).</li>
+          <li><strong>Run Simulation:</strong> Hit enter or press the simulate button. AutomaTe will process the sequence and immediately update the visualizations based on your input.</li>
+        </ul>
+      </section>
 
-      <h3>Context-Free Grammar Visualization</h3>
-      <p>This module breaks down the language into formal production rules.</p>
-      <ul>
-        <li><strong>Production Rules:</strong> Displays the variables (non-terminals), terminals, and the derivation steps.</li>
-        <li><strong>Structure:</strong> Useful for understanding how strings are "built" from the start symbol according to the grammar's logic.</li>
-      </ul>
+      <section>
+        <h2>CORE VISUALIZATIONS</h2>
+        
+        <h3>State Map (DFA)</h3>
+        <p>This module renders the selected regular expression into a node-based network.</p>
+        <ul>
+          <li><strong>Nodes:</strong> Represent system states. The starting point is marked with a <strong>"-"</strong>, while successful accepting states are marked with a <strong>"+"</strong>.</li>
+          <li><strong>Pathing:</strong> Directional arrows dictate how specific characters move the system from one state to another.</li>
+          <li><strong>Execution Trace:</strong> Processing a string evaluates the entire network, instantly highlighting the outcome to show if the input was accepted or trapped.</li>
+        </ul>
 
-      <h3>Pushdown Automata Visualization</h3>
-      <p>The PDA module introduces the concept of memory using a stack.</p>
-      <ul>
-        <li><strong>Flowchart View:</strong> Visualizes the logic including the Read, Pop, and Push operations.</li>
-        <li><strong>Stack Representation:</strong> A dynamic visual of the stack data structure, showing how symbols are added or removed during the computation process.</li>
-      </ul>
-    </section>
+        <h3>CFG Derivation</h3>
+        <p>This section breaks down the active language into hierarchical rules.</p>
+        <ul>
+          <li><strong>Grammar Rules:</strong> View all non-terminals, terminals, and transformation laws for the current problem.</li>
+          <li><strong>Live Tracing:</strong> When a valid string is input, a step-by-step trace breaks down the leftmost derivation, revealing exactly how the grammar constructs the input.</li>
+        </ul>
 
-    <section>
-      <h2>TROUBLESHOOTING & FAQ</h2>
-      <ul>
-        <li><strong>Simulation is slow:</strong> For very complex regular expressions, the DFA generation might take a few seconds. Ensure your browser is up to date.</li>
-        <li><strong>String Rejected:</strong> If the simulator shows "Rejected," the input string does not satisfy the rules of the selected Regular Expression. Double-check the transition diagram to see where the string fails.</li>
-      </ul>
-    </section>
+        <h3>PDA Architecture</h3>
+        <p>The Pushdown Automaton module illustrates the underlying stack memory logic.</p>
+        <ul>
+          <li><strong>Static Model:</strong> Analyzes the layout of the PDA associated with the regex, detailing the push, pop, and read mechanics through a static structural diagram.</li>
+        </ul>
+      </section>
 
-    <section>
-      <h2>FULL DOCUMENTATION</h2>
-      <p>For a more detailed explanation of the project, including technical documentation and complete user guides, please visit our official Google Docs:</p>
-      <a href="https://docs.google.com/document/d/1ny4ccAVK-HR_crp0zBQ0JsBoIXSl3KXw1x4W2Kmc4O8/edit?usp=sharing" target="_blank" class="doc-link">
-        View Full Documentation (Google Docs)
-      </a>
-    </section>
+      <section>
+        <h2>TROUBLESHOOTING</h2>
+        <ul>
+          <li><strong>Performance:</strong> Very complex strings or deeply nested automata models may require a brief moment to compute.</li>
+          <li><strong>Failed Derivations:</strong> If a string is flagged as "Rejected" or highlights in red within the CFG trace, it violates the rules of the selected Regular Expression. Refer to the DFA pathing or the exact failure point in the CFG trace to debug.</li>
+        </ul>
+      </section>
 
-    <section>
-      <h2>PROJECT DETAILS</h2>
-      <p><strong>Purpose:</strong> Created for academic purposes for the S-CSPC327 - Theory of Automata and Formal Languages course.</p>
-      <p><strong>Development Team:</strong> Laran, Juan Carlos (Lead Developer), Melindo, Angel Vhea, Leovonchiong, Lorenz Liu, and Malla, Marielle Joy (Developers).</p>
-      <p><strong>Technology Stack:</strong> Framework: Vue.js; Visualization: D3.js; Version Control: Git / GitHub.</p>
-    </section>
-
-    <hr />
+      <section class="project-details">
+        <h2>PROJECT DETAILS</h2>
+        <p><strong>Purpose:</strong> Created for academic purposes for the S-CSPC327 - Theory of Automata and Formal Languages course.</p>
+        <p><strong>Development Team:</strong> Gabriel Castillo (Lead Developer), Marc Daniel Cajayon, Luis Miguel Trias, Gian Paolo Ybut (Developers).</p>
+        <p><strong>Technology Stack:</strong> Framework: Vue.js; Visualization: D3.js; Version Control: Git / GitHub.</p>
+        
+        <div class="footer-credit">
+          AUTOMATA THEORY AND FORMAL LANGUAGES DLSUD<br>
+          developed by Gabriel Castillo, Marc Daniel Cajayon, Luis Miguel Trias, Gian Paolo Ybut
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
 <style scoped>
 .manual-plain {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 32px 40px;
+  background: #0a0a0f;
+  color: #c8d0e0;
+  font-family: 'Space Mono', monospace;
+  overflow-y: auto;
+}
+
+.manual-header {
+  border-bottom: 1px solid #1e2d3d;
+  padding-bottom: 24px;
+  margin-bottom: 32px;
+}
+
+.manual-title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #00e5ff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin: 0 0 8px 0;
+}
+
+.manual-subtitle {
+  font-size: 14px;
+  color: #8b9bb4;
+  letter-spacing: 0.05em;
+}
+
+.manual-content {
   max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 20px;
-  color: #000;
-  background: #fff;
-  line-height: 1.6;
-}
-
-h1 {
-  text-align: center;
-  text-transform: uppercase;
-  border-bottom: 2px solid #000;
-  padding-bottom: 10px;
-  margin-bottom: 40px;
-}
-
-h2 {
-  text-transform: uppercase;
-  border-bottom: 1px solid #000;
-  padding-bottom: 5px;
-  margin-top: 30px;
-}
-
-h3 {
-  margin-top: 20px;
-  text-decoration: underline;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
 }
 
 section {
-  margin-bottom: 40px;
+  background: #111827;
+  border: 1px solid #1e2d3d;
+  border-radius: 6px;
+  padding: 24px;
 }
 
-ul {
-  padding-left: 20px;
+h2 {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f0a500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 0 0 16px 0;
+  border-bottom: 1px solid rgba(240, 165, 0, 0.2);
+  padding-bottom: 8px;
 }
 
-li {
-  margin-bottom: 10px;
+h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #00e5ff;
+  margin: 20px 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 p {
-  margin: 15px 0;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0 0 12px 0;
+  color: #a1b0c8;
 }
 
-.doc-link {
-  display: inline-block;
-  margin-top: 5px;
-  color: #1a73e8;
-  font-weight: 600;
-  text-decoration: underline;
-  transition: color 0.2s;
+ul {
+  margin: 0;
+  padding-left: 20px;
+  color: #a1b0c8;
 }
 
-.doc-link:hover {
-  color: #174ea6;
-}
-
-hr {
-  border: none;
-  border-top: 1px solid #000;
-  margin-top: 60px;
+li {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-bottom: 8px;
 }
 
 strong {
-  font-weight: bold;
+  color: #e8edf5;
+}
+
+.project-details {
+  background: rgba(0, 229, 255, 0.03);
+  border-color: rgba(0, 229, 255, 0.2);
+}
+
+.footer-credit {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px dashed rgba(0, 229, 255, 0.3);
+  font-size: 11px;
+  color: #8b9bb4;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1.8;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2d3d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4a6a8a;
 }
 </style>

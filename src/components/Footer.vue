@@ -2,13 +2,13 @@
   <footer class="bottom-navbar">
     <div class="footer-content">
       <div class="course-info">
-        AUTOMATA THEORY AND FORMAL LANGUAGES <strong>DLSUD</strong>
+        AUTOMATA THEORY AND FORMAL LANGUAGES &mdash; <strong>DLSUD</strong>
       </div>
       <div class="team-info">
-        led and developed by 
-        <span>Marc Daniel Cajayon</span>, 
-        <span>Gabriel Castillo</span>, 
-        <span>Luis Miguel Trias</span>, 
+        developed by
+        <span>Gabriel Castillo</span>,
+        <span>Marc Daniel Cajayon</span>,
+        <span>Luis Miguel Trias</span>,
         <span>Gian Paolo Ybut</span>
       </div>
     </div>
@@ -18,45 +18,58 @@
 <style scoped>
 .bottom-navbar {
   width: 100%;
-  background: #0d1117;
-  color: #8b949e;
-  padding: 16px 24px;
-  border-top: 1px solid #30363d;
-  margin-top: 40px;
-  font-family: monospace;
+  background: #0d0d14;
+  color: #2d4a6b;
+  padding: 12px 24px;
+  border-top: 1px solid #1a2535;
+  font-family: 'Space Mono', monospace;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.bottom-navbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #1e2d3d 30%, #1e2d3d 70%, transparent);
 }
 
 .footer-content {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .course-info {
-  font-size: 13px;
-  letter-spacing: 0.05em;
+  font-size: 10px;
+  letter-spacing: 0.1em;
   font-weight: 500;
   text-transform: uppercase;
+  color: #2d4a6b;
 }
 
 .course-info strong {
-  color: #3fb950;
-  margin-left: 4px;
-  font-weight: 600;
+  color: #00e5ff;
+  margin-left: 2px;
+  font-weight: 700;
 }
 
 .team-info {
-  font-size: 12px;
-  color: #8b949e;
+  font-size: 10px;
+  color: #2d4a6b;
   text-align: right;
-  line-height: 1.4;
+  line-height: 1.5;
+  letter-spacing: 0.04em;
 }
 
 .team-info span {
-  color: #e6edf3;
+  color: #4a6a8a;
   font-weight: 500;
 }
 
@@ -64,9 +77,9 @@
   .footer-content {
     flex-direction: column;
     text-align: center;
-    gap: 12px;
+    gap: 8px;
   }
-  
+
   .team-info {
     text-align: center;
     word-break: break-word;
@@ -75,7 +88,7 @@
   }
 
   .bottom-navbar {
-    padding: 24px 16px;
+    padding: 16px;
     box-sizing: border-box;
   }
 }

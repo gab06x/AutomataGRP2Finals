@@ -1,27 +1,31 @@
-/* ========== PROBLEM SELECTOR ========== */
+/* ========== REGEX SELECTION PANEL ========== */
+
+.problems-container {
+  width: 100%;
+}
 
 .problem-selector {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
 }
 
 .radio-card {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  border-radius: 6px;
-  border: 1px solid #30363d;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  border: 1px solid #1e2d3d;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  background: #21262d;
+  transition: all 0.15s ease;
+  background: #111827;
+  position: relative;
 }
 
 .radio-card:hover {
-  border-color: #58a6ff;
-  background: #262c36;
-  box-shadow: 0 0 10px rgba(88, 166, 255, 0.1);
+  border-color: #2d4a6b;
+  background: #0d1520;
 }
 
 .radio-card input {
@@ -29,94 +33,82 @@
 }
 
 .radio-custom {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid #6e7681;
+  width: 14px;
+  height: 14px;
+  border-radius: 2px;
+  border: 1.5px solid #2d4a6b;
   position: relative;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  margin-top: 2px;
+  transition: all 0.15s ease;
+  background: transparent;
 }
 
 .radio-card:hover .radio-custom {
-  border-color: #58a6ff;
+  border-color: #00e5ff;
 }
 
 .radio-card input:checked + .radio-custom {
-  border-color: #238636;
-  background-color: #238636;
-  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.2);
+  border-color: #00e5ff;
+  background-color: rgba(0, 229, 255, 0.15);
+  box-shadow: 0 0 6px rgba(0, 229, 255, 0.3);
 }
 
 .radio-card input:checked + .radio-custom::after {
   content: "";
   position: absolute;
-  width: 6px;
-  height: 6px;
-  background: white;
-  border-radius: 50%;
+  width: 5px;
+  height: 5px;
+  background: #00e5ff;
+  border-radius: 1px;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
 }
 
 .label-text {
-  font-family: monospace;
-  font-size: 13px;
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
   word-break: break-word;
-  color: #8b949e;
-  transition: all 0.2s ease;
+  color: #4a6a8a;
+  transition: color 0.15s ease;
+  line-height: 1.5;
+}
+
+.radio-card:hover .label-text {
+  color: #6a9fd8;
 }
 
 .radio-card input:checked ~ .label-text {
-  color: #3fb950;
-  font-weight: 600;
+  color: #00e5ff;
+  font-weight: 700;
 }
 
-/* ========== DARK MODE ========== */
-
-body.dark-mode .radio-card {
-  background: #21262d;
-  border-color: #30363d;
+/* Active label - like reference "ACTIVE" tag */
+.radio-card input:checked ~ .label-text::after {
+  content: "ACTIVE";
+  display: block;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: rgba(0, 229, 255, 0.5);
+  margin-top: 3px;
 }
 
-body.dark-mode .radio-card:hover {
-  background: #262c36;
-  border-color: #58a6ff;
-  box-shadow: 0 0 10px rgba(88, 166, 255, 0.1);
-}
-
-body.dark-mode .radio-custom {
-  border-color: #6e7681;
-}
-
-body.dark-mode .radio-card:hover .radio-custom {
-  border-color: #58a6ff;
-}
-
-body.dark-mode .radio-card input:checked + .radio-custom {
-  border-color: #238636;
-  background-color: #238636;
-  box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.2);
-}
-
-body.dark-mode .label-text {
-  color: #8b949e;
-}
-
-body.dark-mode .radio-card input:checked ~ .label-text {
-  color: #3fb950;
-  font-weight: 600;
+/* Selected card border highlight */
+.radio-card:has(input:checked) {
+  border-color: rgba(0, 229, 255, 0.4);
+  background: rgba(0, 229, 255, 0.04);
+  box-shadow: 0 0 10px rgba(0, 229, 255, 0.08);
 }
 
 /* ========== RESPONSIVE ========== */
-
 @media (max-width: 768px) {
   .radio-card {
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
 
   .label-text {
-    font-size: 12px;
+    font-size: 10px;
   }
 }

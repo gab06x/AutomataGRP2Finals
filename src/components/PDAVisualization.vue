@@ -7,8 +7,8 @@ defineProps({
 })
 
 const REGEX_MAP = {
-  1: '(b+aa+ab)(a+b)*(bb+aba+ab)*(aaa+bbb)(a+b)(a+b+ab)*',
-  2: '(1+0)*(11+00+101+010)(1+0+11+00+101)*(11+00)(11+00+101)*(1+0)(1+0+11)*'
+  1: '(bab+bbb) b* a* (a*+b*) (ab)* (aba) (bab+aba)* bb (a+b)* (bab+aba) (a+b)*',
+  2: '(1+0)* 0* 1* (111+00+101) (1+0)* (101+01+000) (1+0)* (101+000)*'
 }
 </script>
 
@@ -35,7 +35,10 @@ const REGEX_MAP = {
     <!-- Image Container -->
     <div class="pda-viz-card">
       <div class="viz-head">
-        <span>Pushdown Automata Diagram</span>
+        <span style="display:flex; align-items:center; gap:8px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+          PUSHDOWN AUTOMATA DIAGRAM
+        </span>
       </div>
       <div class="image-viewport">
         <div v-if="problemId === 1">
@@ -52,110 +55,145 @@ const REGEX_MAP = {
 </template>
 
 <style scoped>
+/* ========== AUTOMATALAB DARK TERMINAL UI ========== */
 .pda-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 1.2rem;
-
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+  background: #0a0a0f;
+  color: #c8d0e0;
+  font-family: 'Space Mono', monospace;
+  overflow-y: auto;
 }
 
 /* Header */
 .pda-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #1e2d3d;
 }
+
 .header-left {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
+
 .badge {
-    background: #1e1e2e;
-    color: #cdd6f4;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    padding: 3px 8px;
-    border-radius: 5px;
+  background: rgba(0, 229, 255, 0.1);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.3);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
 }
+
 .title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e1e2e;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
 }
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
 .attribution {
-    font-size: 12px;
-    color: #94a3b8;
-    font-style: italic;
+  font-size: 11px;
+  color: #4a6a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 /* Regex */
 .regex-wrap {
-    display: flex;
-    align-items: flex-start;
-    gap: 0.6rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.6rem 0.9rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: #111827;
+  border: 1px solid #1e2d3d;
+  border-radius: 4px;
+  padding: 12px 16px;
 }
+
 .regex-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding-top: 2px;
-    white-space: nowrap;
+  font-size: 10px;
+  color: #00e5ff;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
+
 .regex-code {
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: #334155;
-    word-break: break-all;
-    line-height: 1.6;
+  color: #c8d0e0;
+  font-size: 13px;
+  word-break: break-all;
+  line-height: 1.5;
 }
 
 /* Viz Card */
 .pda-viz-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    overflow: hidden;
-    background: #fff;
+  background: #111827;
+  border: 1px solid #1e2d3d;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
+
 .viz-head {
-    padding: 8px 16px;
-    background: #f8fafc;
-    border-bottom: 1px solid #e2e8f0;
-    font-size: 12px;
-    font-weight: 600;
-    color: #64748b;
-    text-transform: uppercase;
+  padding: 10px 16px;
+  background: rgba(30, 45, 61, 0.4);
+  border-bottom: 1px solid #1e2d3d;
+  color: #00e5ff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.15em;
+  font-weight: 700;
 }
 
 .image-viewport {
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    background: #fafafa;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #0f141e; /* Deep dark background */
+  min-height: 300px;
 }
 
 .pda-image {
-    max-width: 100%;
-    height: auto;
-    border-radius: 4px;
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  border: 1px solid #1e2d3d;
+  background: #fff; /* White background in case the image is transparent, so text is readable */
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0f;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e2d3d;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4a6a8a;
 }
 </style>
-

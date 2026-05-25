@@ -18,120 +18,154 @@ const autoTimer = ref(null)
 const DFA_CONFIGS = {
   1: {
     start: 'q0',
-    accept: ['q15'],
+    accept: ['q_accept'],
     nodes: [
-      { id: 'q0', label: '-', type: 'start', fx: 0, fy: 0 },
-      { id: 'q1', label: '', type: 'state', fx: 100, fy: -100 },
-      { id: 'q2', label: '', type: 'state', fx: 200, fy: -100 },
-      { id: 'q3', label: '', type: 'state', fx: 300, fy: -100 },
-      { id: 'q4', label: '', type: 'state', fx: 400, fy: -100 },
-      { id: 'q5', label: '', type: 'state', fx: 500, fy: -100 },
-      { id: 'q6', label: '', type: 'state', fx: 600, fy: -100 },
-      { id: 'q7', label: '', type: 'state', fx: 700, fy: -100 },
-      { id: 'q8', label: '', type: 'state', fx: 800, fy: -100 },
-      { id: 'q11', label: '', type: 'state', fx: 100, fy: 100 },
-      { id: 'q12', label: '', type: 'state', fx: 200, fy: 100 },
-      { id: 'q13', label: '', type: 'state', fx: 300, fy: 100 },
-      { id: 'q14', label: '', type: 'state', fx: 400, fy: 100 },
-      { id: 'q15', label: '+', type: 'accept', fx: 500, fy: 100 },
-      { id: 'q_trap', label: '', type: 'state', fx: 0, fy: -150 }
+      { id: 'q0',       label: '-', type: 'start',  fx: 0,    fy: 0   },
+      { id: 'q1',       label: '',  type: 'state',  fx: 130,  fy: 0   },
+      { id: 'q2',       label: '',  type: 'state',  fx: 260,  fy: 0   },
+      { id: 'q3',       label: '',  type: 'state',  fx: 390,  fy: 0   },
+      { id: 'q4',       label: '',  type: 'state',  fx: 520,  fy: 0   },
+      { id: 'q5',       label: '',  type: 'state',  fx: 650,  fy: 0   },
+      { id: 'q6',       label: '',  type: 'state',  fx: 780,  fy: 0   },
+      { id: 'q7',       label: '',  type: 'state',  fx: 910,  fy: 0   },
+      { id: 'q8',       label: '',  type: 'state',  fx: 1040, fy: 0   },
+      { id: 'q9',       label: '',  type: 'state',  fx: 1170, fy: -80 },
+      { id: 'q10',      label: '',  type: 'state',  fx: 1170, fy: 80  },
+      { id: 'q11',      label: '',  type: 'state',  fx: 1300, fy: -80 },
+      { id: 'q12',      label: '',  type: 'state',  fx: 1300, fy: 80  },
+      { id: 'q_accept', label: '+', type: 'accept', fx: 1430, fy: 0   },
+      { id: 'q_trap',   label: '',  type: 'state',  fx: 130,  fy: 130 }
     ],
     links: [
-      { source: 'q0', target: 'q_trap', label: 'a' },
-      { source: 'q0', target: 'q1', label: 'b' },
-      { source: 'q1', target: 'q2', label: 'a, b' },
-      { source: 'q2', target: 'q_trap', label: 'a' },
-      { source: 'q2', target: 'q3', label: 'b' },
-      { source: 'q3', target: 'q4', label: 'a' },
-      { source: 'q3', target: 'q3', label: 'b' },
-      { source: 'q4', target: 'q4', label: 'a' },
-      { source: 'q4', target: 'q5', label: 'b' },
-      { source: 'q5', target: 'q7', label: 'a' },
-      { source: 'q5', target: 'q3', label: 'b' },
-      { source: 'q6', target: 'q7', label: 'a' },
-      { source: 'q6', target: 'q8', label: 'b' },
-      { source: 'q7', target: 'q6', label: 'a' },
-      { source: 'q7', target: 'q8', label: 'b' },
-      { source: 'q8', target: 'q11', label: 'a' },
-      { source: 'q8', target: 'q12', label: 'b' },
-      { source: 'q11', target: 'q11', label: 'a' },
-      { source: 'q11', target: 'q13', label: 'b' },
-      { source: 'q12', target: 'q14', label: 'a' },
-      { source: 'q12', target: 'q12', label: 'b' },
-      { source: 'q13', target: 'q15', label: 'a' },
-      { source: 'q13', target: 'q12', label: 'b' },
-      { source: 'q14', target: 'q11', label: 'a' },
-      { source: 'q14', target: 'q15', label: 'b' },
-      { source: 'q15', target: 'q15', label: 'a, b' },
-      { source: 'q_trap', target: 'q_trap', label: 'a, b' }
+      // From q0
+      { source: 'q0',       target: 'q_trap',   label: 'a',   sweep: 1 },
+      { source: 'q0',       target: 'q1',        label: 'b'             },
+      // From q1 — both a and b go to q2
+      { source: 'q1',       target: 'q2',        label: 'a, b'          },
+      // From q2
+      { source: 'q2',       target: 'q_trap',    label: 'a',   sweep: 1 },
+      { source: 'q2',       target: 'q3',        label: 'b'             },
+      // From q3
+      { source: 'q3',       target: 'q4',        label: 'a'             },
+      { source: 'q3',       target: 'q3',        label: 'b'             },
+      // From q4
+      { source: 'q4',       target: 'q4',        label: 'a'             },
+      { source: 'q4',       target: 'q5',        label: 'b'             },
+      // From q5
+      { source: 'q5',       target: 'q6',        label: 'a'             },
+      { source: 'q5',       target: 'q5',        label: 'b'             },
+      // From q6 — a goes to trap, b goes to q7
+      { source: 'q6',       target: 'q_trap',    label: 'a',   sweep: 1 },
+      { source: 'q6',       target: 'q7',        label: 'b'             },
+      // From q7
+      { source: 'q7',       target: 'q7',        label: 'a'             },
+      { source: 'q7',       target: 'q8',        label: 'b'             },
+      // From q8
+      { source: 'q8',       target: 'q9',        label: 'a'             },
+      { source: 'q8',       target: 'q10',       label: 'b'             },
+      // From q9
+      { source: 'q9',       target: 'q9',        label: 'a'             },
+      { source: 'q9',       target: 'q11',       label: 'b'             },
+      // From q10
+      { source: 'q10',      target: 'q12',       label: 'a'             },
+      { source: 'q10',      target: 'q10',       label: 'b'             },
+      // From q11 (cross to accept and q10)
+      { source: 'q11',      target: 'q_accept',  label: 'a'             },
+      { source: 'q11',      target: 'q10',       label: 'b',  sweep: 1  },
+      // From q12 (cross to q9 and accept)
+      { source: 'q12',      target: 'q9',        label: 'a',  sweep: 0  },
+      { source: 'q12',      target: 'q_accept',  label: 'b'             },
+      // Trap and accept self-loops
+      { source: 'q_trap',   target: 'q_trap',    label: 'a, b'          },
+      { source: 'q_accept', target: 'q_accept',  label: 'a, b'          }
     ],
     transitions: {
-      'q0': { 'a': 'q_trap', 'b': 'q1' },
-      'q1': { 'a': 'q2', 'b': 'q2' },
-      'q2': { 'a': 'q_trap', 'b': 'q3' },
-      'q3': { 'a': 'q4', 'b': 'q3' },
-      'q4': { 'a': 'q4', 'b': 'q5' },
-      'q5': { 'a': 'q7', 'b': 'q3' },
-      'q6': { 'a': 'q7', 'b': 'q8' },
-      'q7': { 'a': 'q6', 'b': 'q8' },
-      'q8': { 'a': 'q11', 'b': 'q12' },
-      'q11': { 'a': 'q11', 'b': 'q13' },
-      'q12': { 'a': 'q14', 'b': 'q12' },
-      'q13': { 'a': 'q15', 'b': 'q12' },
-      'q14': { 'a': 'q11', 'b': 'q15' },
-      'q15': { 'a': 'q15', 'b': 'q15' },
-      'q_trap': { 'a': 'q_trap', 'b': 'q_trap' }
+      'q0':       { 'a': 'q_trap',   'b': 'q1'       },
+      'q1':       { 'a': 'q2',       'b': 'q2'       },
+      'q2':       { 'a': 'q_trap',   'b': 'q3'       },
+      'q3':       { 'a': 'q4',       'b': 'q3'       },
+      'q4':       { 'a': 'q4',       'b': 'q5'       },
+      'q5':       { 'a': 'q6',       'b': 'q5'       },
+      'q6':       { 'a': 'q_trap',   'b': 'q7'       },
+      'q7':       { 'a': 'q7',       'b': 'q8'       },
+      'q8':       { 'a': 'q9',       'b': 'q10'      },
+      'q9':       { 'a': 'q9',       'b': 'q11'      },
+      'q10':      { 'a': 'q12',      'b': 'q10'      },
+      'q11':      { 'a': 'q_accept', 'b': 'q10'      },
+      'q12':      { 'a': 'q9',       'b': 'q_accept' },
+      'q_trap':   { 'a': 'q_trap',   'b': 'q_trap'   },
+      'q_accept': { 'a': 'q_accept', 'b': 'q_accept' }
     }
   },
+
   2: {
     start: 'q0',
-    accept: ['q10'],
+    accept: ['q_accept2'],
     nodes: [
-      { id: 'q0', label: '-', type: 'start', fx: 0, fy: 0 },
-      { id: 'q1', label: '', type: 'state', fx: 100, fy: -80 },
-      { id: 'q2', label: '', type: 'state', fx: 200, fy: -80 },
-      { id: 'q3', label: '', type: 'state', fx: 300, fy: -80 },
-      { id: 'q4', label: '', type: 'state', fx: 100, fy: 80 },
-      { id: 'q5', label: '', type: 'state', fx: 200, fy: 0 },
-      { id: 'q6', label: '', type: 'state', fx: 300, fy: -80 },
-      { id: 'q7', label: '', type: 'state', fx: 300, fy: 80 },
-      { id: 'q8', label: '', type: 'state', fx: 400, fy: -80 },
-      { id: 'q9', label: '', type: 'state', fx: 400, fy: 80 },
-      { id: 'q10', label: '+', type: 'accept', fx: 500, fy: 0 }
+      // Start state — far left
+      { id: 'q0',       label: '-', type: 'start',  fx: 0,   fy: 0    },
+      // Left diamond — upper path via '1'
+      { id: 'q1',       label: '',  type: 'state',  fx: 160, fy: -100 },
+      { id: 'q2',       label: '',  type: 'state',  fx: 300, fy: -190 },
+      { id: 'q3',       label: '',  type: 'state',  fx: 300, fy: -100 },
+      // Left diamond — lower path via '0'
+      { id: 'q4',       label: '',  type: 'state',  fx: 160, fy: 100  },
+      // Bottleneck center
+      { id: 'q5',       label: '',  type: 'state',  fx: 440, fy: 0    },
+      // Right structure — upper branch
+      { id: 'q6',       label: '',  type: 'state',  fx: 580, fy: -110 },
+      // Right structure — lower branch (self-loop on 1)
+      { id: 'q7',       label: '',  type: 'state',  fx: 580, fy: 110  },
+      // Second-right structure
+      { id: 'q8',       label: '',  type: 'state',  fx: 720, fy: -50  },
+      { id: 'q9',       label: '',  type: 'state',  fx: 720, fy: 110  },
+      // Accept state — far right
+      { id: 'q_accept2', label: '+', type: 'accept', fx: 860, fy: 0   }
     ],
     links: [
-      { source: 'q0', target: 'q4', label: '0' },
-      { source: 'q0', target: 'q1', label: '1' },
-      { source: 'q1', target: 'q2', label: '0' },
-      { source: 'q1', target: 'q3', label: '1' },
-      { source: 'q2', target: 'q5', label: '0, 1' },
-      { source: 'q3', target: 'q2', label: '0' },
-      { source: 'q3', target: 'q5', label: '1' },
-      { source: 'q4', target: 'q5', label: '0' },
-      { source: 'q4', target: 'q1', label: '1' },
-      { source: 'q5', target: 'q6', label: '0' },
-      { source: 'q5', target: 'q7', label: '1' },
-      { source: 'q6', target: 'q8', label: '0' },
-      { source: 'q6', target: 'q10', label: '1' },
-      { source: 'q7', target: 'q9', label: '0' },
-      { source: 'q7', target: 'q7', label: '1' },
-      { source: 'q8', target: 'q10', label: '0, 1' },
-      { source: 'q9', target: 'q8', label: '0' },
-      { source: 'q9', target: 'q10', label: '1' },
-      { source: 'q10', target: 'q10', label: '0, 1' }
+      // From start
+      { source: 'q0',        target: 'q1',        label: '1'           },
+      { source: 'q0',        target: 'q4',        label: '0'           },
+      // From q1
+      { source: 'q1',        target: 'q2',        label: '0'           },
+      { source: 'q1',        target: 'q3',        label: '1'           },
+      // From q2 — both 0 and 1 go to q5
+      { source: 'q2',        target: 'q5',        label: '0, 1'        },
+      // From q3 — 0 goes back to q2, 1 goes to q5
+      { source: 'q3',        target: 'q2',        label: '0'           },
+      { source: 'q3',        target: 'q5',        label: '1'           },
+      // From q4
+      { source: 'q4',        target: 'q5',        label: '0'           },
+      { source: 'q4',        target: 'q1',        label: '1', sweep: 0 },
+      // From q5
+      { source: 'q5',        target: 'q6',        label: '0'           },
+      { source: 'q5',        target: 'q7',        label: '1'           },
+      // From q6
+      { source: 'q6',        target: 'q8',        label: '0'                        },
+      { source: 'q6',        target: 'q_accept2', label: '1', sweep: 1, curve: -1 },
+      // From q7 — self-loop on 1
+      { source: 'q7',        target: 'q7',        label: '1'           },
+      { source: 'q7',        target: 'q9',        label: '0'           },
+      // From q8 — both go to accept
+      { source: 'q8',        target: 'q_accept2', label: '0, 1'        },
+      // From q9
+      { source: 'q9',        target: 'q8',        label: '0'           },
+      { source: 'q9',        target: 'q_accept2', label: '1'           },
+      // Accept self-loop
+      { source: 'q_accept2', target: 'q_accept2', label: '0, 1'        }
     ],
     transitions: {
-      'q0': { '0': 'q4', '1': 'q1' },
-      'q1': { '0': 'q2', '1': 'q3' },
-      'q2': { '0': 'q5', '1': 'q5' },
-      'q3': { '0': 'q2', '1': 'q5' },
-      'q4': { '0': 'q5', '1': 'q1' },
-      'q5': { '0': 'q6', '1': 'q7' },
-      'q6': { '0': 'q8', '1': 'q10' },
-      'q7': { '0': 'q9', '1': 'q7' },
-      'q8': { '0': 'q10', '1': 'q10' },
-      'q9': { '0': 'q8', '1': 'q10' },
-      'q10': { '0': 'q10', '1': 'q10' }
+      'q0':       { '0': 'q4',        '1': 'q1'        },
+      'q1':       { '0': 'q2',        '1': 'q3'        },
+      'q2':       { '0': 'q5',        '1': 'q5'        },
+      'q3':       { '0': 'q2',        '1': 'q5'        },
+      'q4':       { '0': 'q5',        '1': 'q1'        },
+      'q5':       { '0': 'q6',        '1': 'q7'        },
+      'q6':       { '0': 'q8',        '1': 'q_accept2' },
+      'q7':       { '0': 'q9',        '1': 'q7'        },
+      'q8':       { '0': 'q_accept2', '1': 'q_accept2' },
+      'q9':       { '0': 'q8',        '1': 'q_accept2' },
+      'q_accept2':{ '0': 'q_accept2', '1': 'q_accept2' }
     }
   }
 }
@@ -178,14 +212,14 @@ const runSimulation = (input) => {
   for (let i = 0; i < input.length; i++) {
     const ch = input[i]
     let next = d.transitions[current]?.[ch]
-    
+
     // Handle split transitions string like "0, 1"
     if (!next) {
         for (const [key, val] of Object.entries(d.transitions[current])) {
             if (key.includes(ch)) next = val;
         }
     }
-    
+
     if (next === undefined) {
       stepsList.push({ state: null, charIndex: i, char: ch, dead: true })
       return { steps: stepsList, accepted: false }
@@ -203,38 +237,43 @@ const initSim = () => {
 }
 
 const highlightElements = (fromId, toId) => {
-    d3.select(svgRef.value).selectAll('circle').attr('stroke', '#fff').attr('stroke-width', 1.5).style('filter', null);
-    d3.select(svgRef.value).selectAll('path.edge').attr('stroke', 'black').attr('stroke-width', 2);
-    
+    const svg = d3.select(svgRef.value)
+    // Reset all
+    svg.selectAll('rect.node-rect')
+      .attr('stroke', '#2d4a6b')
+      .attr('stroke-width', 1.5)
+      .style('filter', null)
+    svg.selectAll('path.edge')
+      .attr('stroke', '#2d4a6b')
+      .attr('stroke-width', 1.5)
+
     const isAccepted = resultAccepted.value;
     const isDone = done.value;
-    const color = isDone ? (isAccepted ? '#22c55e' : '#ef4444') : '#f59e0b';
-    
+    const color = isDone ? (isAccepted ? '#c8ff00' : '#ff4444') : '#00e5ff';
+
     if (toId) {
-        d3.select(svgRef.value).select(`#node-${toId}`)
+        svg.select(`#node-${toId}`)
           .attr('stroke', color)
-          .attr('stroke-width', 3.5)
-          .style('filter', `drop-shadow(0 0 8px ${color})`);
+          .attr('stroke-width', 2.5)
+          .style('filter', `drop-shadow(0 0 10px ${color})`);
     } else if (fromId && !toId) {
-        // Dead state highlight previous node red
-        d3.select(svgRef.value).select(`#node-${fromId}`)
-          .attr('stroke', '#ef4444')
-          .attr('stroke-width', 3.5)
-          .style('filter', `drop-shadow(0 0 8px #ef4444)`);
+        svg.select(`#node-${fromId}`)
+          .attr('stroke', '#ff4444')
+          .attr('stroke-width', 2.5)
+          .style('filter', `drop-shadow(0 0 10px #ff4444)`);
     }
-    
+
     if (fromId && toId) {
-        // Highlight all lines belonging to the correct char index (there might be multiple chars)
         const char = currentStep.value?.char;
         if (char) {
-            const specificLink = d3.select(svgRef.value).select(`#link-${fromId}-${toId}-${char}`);
+            const specificLink = svg.select(`#link-${fromId}-${toId}-${char}`);
             if (!specificLink.empty()) {
-                specificLink.attr('stroke', color).attr('stroke-width', 3);
+                specificLink.attr('stroke', color).attr('stroke-width', 2.5);
             } else {
-                d3.select(svgRef.value).select(`#link-${fromId}-${toId}`).attr('stroke', color).attr('stroke-width', 3);
+                svg.select(`#link-${fromId}-${toId}`).attr('stroke', color).attr('stroke-width', 2.5);
             }
         } else {
-            d3.select(svgRef.value).select(`path[id^="link-${fromId}-${toId}"]`).attr('stroke', color).attr('stroke-width', 3);
+            svg.select(`path[id^="link-${fromId}-${toId}"]`).attr('stroke', color).attr('stroke-width', 2.5);
         }
     }
 }
@@ -243,7 +282,7 @@ const advance = (result, idx) => {
   const from = result.steps[idx].state
   const to = result.steps[idx + 1]?.state
   stepIndex.value = idx + 1
-  
+
   highlightElements(from, to)
 
   if (idx + 1 >= result.steps.length - 1) done.value = true
@@ -257,9 +296,9 @@ const runAuto = () => {
   let idx = 0
   stepIndex.value = 0
   done.value = false
-  
+
   highlightElements(null, result.steps[0].state)
-  
+
   const max = result.steps.length - 1
   autoTimer.value = setInterval(() => {
     if (idx >= max) {
@@ -267,7 +306,6 @@ const runAuto = () => {
       autoTimer.value = null
       isRunning.value = false
       done.value = true
-      // Trigger final highlight update
       highlightElements(null, result.steps[max].state)
       return
     }
@@ -283,38 +321,61 @@ const doReset = () => {
   stepIndex.value = 0
   done.value = false
   simResult.value = null
-  
+
   if (svgRef.value) {
-      d3.select(svgRef.value).selectAll('circle').attr('stroke', '#fff').attr('stroke-width', 1.5).style('filter', null);
-      d3.select(svgRef.value).selectAll('path.edge').attr('stroke', 'black').attr('stroke-width', 2);
+      d3.select(svgRef.value).selectAll('rect.node-rect')
+        .attr('stroke', '#2d4a6b')
+        .attr('stroke-width', 1.5)
+        .style('filter', null)
+      d3.select(svgRef.value).selectAll('path.edge')
+        .attr('stroke', '#2d4a6b')
+        .attr('stroke-width', 1.5)
   }
 }
 
+const NODE_W = 46
+const NODE_H = 30
+const NODE_R = 5
+
 const renderDFA = () => {
     if (!svgRef.value) return;
-    
+
     const data = dfa.value;
     d3.select(svgRef.value).selectAll("*").remove();
 
-    const svg = d3.select(svgRef.value).style("overflow", "hidden"); 
+    const svg = d3.select(svgRef.value).style("overflow", "hidden");
 
-    svg.append("defs").selectAll("marker")
-        .data(["end"])
-        .enter().append("marker")
-        .attr("id", "arrow")
+    // Arrow marker - cyan
+    const defs = svg.append("defs")
+
+    defs.append("marker")
+        .attr("id", "arrow-default")
         .attr("viewBox", "0 -5 10 10")
-        .attr("refX", 25)
+        .attr("refX", 24)
         .attr("refY", 0)
-        .attr("markerWidth", 6)
-        .attr("markerHeight", 6)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
         .attr("orient", "auto")
         .append("path")
         .attr("d", "M0,-5L10,0L0,5")
-        .attr("fill", "#000");
+        .attr("fill", "#2d4a6b");
+
+    defs.append("marker")
+        .attr("id", "arrow-active")
+        .attr("viewBox", "0 -5 10 10")
+        .attr("refX", 24)
+        .attr("refY", 0)
+        .attr("markerWidth", 5)
+        .attr("markerHeight", 5)
+        .attr("orient", "auto")
+        .append("path")
+        .attr("d", "M0,-5L10,0L0,5")
+        .attr("fill", "#00e5ff");
 
     const simulation = d3.forceSimulation(data.nodes)
         .force("link", d3.forceLink(data.links).id(d => d.id));
 
+    // Links
     const linkGroup = svg.append("g")
     const link = linkGroup.selectAll("path")
         .data(data.links)
@@ -322,80 +383,128 @@ const renderDFA = () => {
         .attr("class", "edge")
         .attr("id", d => `link-${d.source.id ?? d.source}-${d.target.id ?? d.target}-${d.label}`)
         .attr("fill", "none")
-        .attr("stroke", "black")
-        .attr("stroke-width", 2)
-        .attr("marker-end", "url(#arrow)");
+        .attr("stroke", "#2d4a6b")
+        .attr("stroke-width", 1.5)
+        .attr("marker-end", "url(#arrow-default)");
 
+    // Link labels
     const linkLabel = svg.append("g").selectAll("text")
         .data(data.links).join("text").text(d => d.label)
-        .attr("font-size", "16px")
-        .attr("fill", "#e63946")
-        .attr("font-weight", "bold")
+        .attr("font-size", "11px")
+        .attr("fill", "#e06b75")
+        .attr("font-weight", "700")
+        .attr("font-family", "Space Mono, monospace")
         .attr("text-anchor", "middle")
-        // Create the white background aura effect using stroke
         .style("paint-order", "stroke")
-        .style("stroke", "#ffffff")
-        .style("stroke-width", "5px")
+        .style("stroke", "#0d0f18")
+        .style("stroke-width", "4px")
         .style("stroke-linejoin", "round");
 
+    // Node groups
     const nodeGroup = svg.append("g")
-    const node = nodeGroup.selectAll("circle")
+    const nodeEl = nodeGroup.selectAll("g.node-g")
         .data(data.nodes)
-        .join("circle")
-        .attr("id", d => `node-${d.id}`)
-        .attr("stroke", "#fff")
-        .attr("stroke-width", 1.5)
-        .attr("r", 20)
-        .attr("fill", d => d.type === 'accept' ? '#4caf50' : (d.type === 'start' ? '#ff9800' : '#2196f3'));
+        .join("g")
+        .attr("class", "node-g")
 
-    const label = svg.append("g").selectAll("text")
-        .data(data.nodes).join("text").text(d => d.label)
-        .attr("dy", d => (d.label === '-' || d.label === '+') ? 8 : 5)
-        .attr("text-anchor", "middle")
-        .attr("font-size", d => (d.label === '-' || d.label === '+') ? "28px" : "14px")
+    // Rounded rectangle for each node
+    nodeEl.append("rect")
+        .attr("class", "node-rect")
+        .attr("id", d => `node-${d.id}`)
+        .attr("width", NODE_W)
+        .attr("height", NODE_H)
+        .attr("rx", NODE_R)
+        .attr("ry", NODE_R)
+        .attr("x", -NODE_W / 2)
+        .attr("y", -NODE_H / 2)
+        .attr("fill", d => {
+            if (d.type === 'accept') return '#0d1f0d'
+            if (d.type === 'start') return '#1a1a0d'
+            return '#111827'
+        })
+        .attr("stroke", d => {
+            if (d.type === 'accept') return '#c8ff00'
+            if (d.type === 'start') return '#4a6a8a'
+            return '#2d4a6b'
+        })
+        .attr("stroke-width", 1.5)
+
+    // Accept state double border
+    nodeEl.filter(d => d.type === 'accept')
+        .append("rect")
+        .attr("width", NODE_W - 6)
+        .attr("height", NODE_H - 6)
+        .attr("rx", NODE_R - 1)
+        .attr("ry", NODE_R - 1)
+        .attr("x", -(NODE_W - 6) / 2)
+        .attr("y", -(NODE_H - 6) / 2)
+        .attr("fill", "none")
+        .attr("stroke", "#c8ff00")
+        .attr("stroke-width", 1)
         .attr("pointer-events", "none")
-        .attr("fill", "white").attr("font-weight", "bold");
+
+    // Node ID label — q_trap shows as "T", accept states show as "+", others show their id
+    const nodeIdLabel = nodeEl.append("text")
+        .text(d => {
+            if (d.id === 'q_trap') return 'T'
+            if (d.id === 'q_accept' || d.id === 'q_accept2') return '+'
+            return d.id
+        })
+        .attr("dy", 4)
+        .attr("text-anchor", "middle")
+        .attr("font-size", d => d.id.length > 3 ? "8px" : "10px")
+        .attr("font-family", "Space Mono, monospace")
+        .attr("font-weight", "700")
+        .attr("pointer-events", "none")
+        .attr("fill", d => {
+            if (d.type === 'accept') return '#c8ff00'
+            if (d.type === 'start') return '#f0a500'
+            if (d.id === 'q_trap') return '#a0a0c0'
+            return '#c8d0e0'
+        })
+
+    // State type labels below nodes
+    nodeEl.append("text")
+        .text(d => d.type === 'start' ? 'START' : d.type === 'accept' ? 'ACCEPT' : '')
+        .attr("dy", NODE_H / 2 + 12)
+        .attr("text-anchor", "middle")
+        .attr("font-size", "8px")
+        .attr("font-family", "Space Mono, monospace")
+        .attr("font-weight", "700")
+        .attr("letter-spacing", "0.08em")
+        .attr("pointer-events", "none")
+        .attr("fill", d => d.type === 'accept' ? '#c8ff00' : '#4a6a8a')
 
     simulation.tick(300);
 
-link.attr("d", d => {
-    const dx = d.target.x - d.source.x;
-    const dy = d.target.y - d.source.y;
-    
-    // 1. Handle Self-Loops (Already working, but kept for context)
-    if (d.source === d.target) {
-        const size = d.curve ? 20 * d.curve : 20;
-        const yOffset = d.curve ? 18 + (d.curve - 1)*20 : 18;
-        return `M${d.source.x - 10},${d.source.y - yOffset} A ${size} ${size} 0 1 1 ${d.source.x + 10},${d.source.y - yOffset}`;
-    }
+    link.attr("d", d => {
+        const dx = d.target.x - d.source.x;
+        const dy = d.target.y - d.source.y;
 
-    // 2. Calculate Distance
-    let dr = Math.sqrt(dx * dx + dy * dy);
-    
-    // 3. Determine Sweep (Direction of the curve)
-    // If d.sweep is provided (0 or 1), use it. 
-    // Otherwise, use your ID-based direction logic.
-    let finalSweep;
-    if (d.sweep !== undefined) {
-        finalSweep = d.sweep;
-    } else {
-        const sourceNum = parseInt((d.source.id ?? d.source).replace(/\D/g, '')) || 0;
-        const targetNum = parseInt((d.target.id ?? d.target).replace(/\D/g, '')) || 0;
-        finalSweep = sourceNum < targetNum ? 1 : 0;
-    }
+        if (d.source === d.target) {
+            const size = d.curve ? 20 * d.curve : 20;
+            const yOffset = d.curve ? 18 + (d.curve - 1)*20 : 18;
+            return `M${d.source.x - 10},${d.source.y - yOffset} A ${size} ${size} 0 1 1 ${d.source.x + 10},${d.source.y - yOffset}`;
+        }
 
-    // 4. Determine Radius (Intensity of the curve)
-    // If d.curve is a huge number (like 50000), it makes the line straight.
-    // Otherwise, we apply the multiplier to the distance.
-    if (d.curve && d.curve > 1000) {
-        // High curve value = Straight line
-        return `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`;
-    } else {
-        // Standard curved arc
-        dr = dr * (d.curve || 1.3);
-        return `M${d.source.x},${d.source.y} A ${dr} ${dr} 0 0 ${finalSweep} ${d.target.x},${d.target.y}`;
-    }
-});
+        let dr = Math.sqrt(dx * dx + dy * dy);
+
+        let finalSweep;
+        if (d.sweep !== undefined) {
+            finalSweep = d.sweep;
+        } else {
+            const sourceNum = parseInt((d.source.id ?? d.source).replace(/\D/g, '')) || 0;
+            const targetNum = parseInt((d.target.id ?? d.target).replace(/\D/g, '')) || 0;
+            finalSweep = sourceNum < targetNum ? 1 : 0;
+        }
+
+        if (d.curve && d.curve > 1000) {
+            return `M${d.source.x},${d.source.y} L${d.target.x},${d.target.y}`;
+        } else {
+            dr = dr * (d.curve || 1.3);
+            return `M${d.source.x},${d.source.y} A ${dr} ${dr} 0 0 ${finalSweep} ${d.target.x},${d.target.y}`;
+        }
+    });
 
     linkLabel
         .attr("x", d => {
@@ -404,25 +513,24 @@ link.attr("d", d => {
         })
         .attr("y", d => {
             if (d.source === d.target) return d.source.y - 45;
-            // Place exactly on the line vertically
             return link.nodes()[data.links.indexOf(d)].getPointAtLength(0.5 * link.nodes()[data.links.indexOf(d)].getTotalLength()).y;
         });
 
-    node.attr("cx", d => d.x).attr("cy", d => d.y);
-    label.attr("x", d => d.x).attr("y", d => d.y);
+    nodeEl.attr("transform", d => `translate(${d.x},${d.y})`);
 
     if (data.nodes.length > 0) {
         const minX = Math.min(...data.nodes.map(n => n.x));
         const maxX = Math.max(...data.nodes.map(n => n.x));
         const minY = Math.min(...data.nodes.map(n => n.y));
         const maxY = Math.max(...data.nodes.map(n => n.y));
-        const padding = 80;
+        const padding = 100;
         const width = maxX - minX + padding * 2;
         const height = maxY - minY + padding * 2;
         svg.attr("viewBox", `${minX - padding} ${minY - padding} ${width} ${height}`)
            .style("width", "100%")
-           .style("max-width", "800px")
-           .style("max-height", "400px"); 
+           .style("max-width", "100%")
+           .style("height", "100%")
+           .style("min-height", "380px");
     }
     simulation.stop();
 };
@@ -457,58 +565,59 @@ onUnmounted(() => {
 
 <template>
   <div class="dfa-wrap">
-    
-    <!-- Header -->
+
+    <!-- Header bar -->
     <div class="dfa-header">
       <div class="header-left">
         <span class="badge">DFA</span>
         <span class="title">Problem {{ problemId }}</span>
       </div>
       <div class="header-right">
-        <span class="dot start-dot"></span><span class="leg">Start</span>
-        <span class="dot state-dot"></span><span class="leg">State</span>
-        <span class="dot accept-dot"></span><span class="leg">Accept</span>
+        <span class="leg-item"><span class="dot start-dot"></span>Start</span>
+        <span class="leg-item"><span class="dot state-dot"></span>State</span>
+        <span class="leg-item"><span class="dot accept-dot"></span>Accept</span>
       </div>
     </div>
 
-    <!-- Regex -->
+    <!-- Regex row -->
     <div class="regex-wrap" v-if="problemRegex">
       <span class="regex-label">Regex</span>
       <code class="regex-code">{{ problemRegex }}</code>
     </div>
 
+    <!-- Invalid warning -->
     <div v-if="simResult && !isValidInput" class="invalid-warning">
-      <span>⚠️ Invalid String for this Automaton</span>
+      <span>⚠ Invalid String for this Automaton</span>
     </div>
 
-    <!-- Simulation Controls Area -->
-    <div class="simulation-status-card">
-      
+    <!-- Simulation status -->
+    <div class="simulation-status-card" v-if="simResult">
+
       <!-- Tape -->
       <div v-if="tape.length > 0" class="tape-section">
-        <div class="section-label">Tape</div>
+        <div class="section-label">Input Tape</div>
         <div class="tape-container no-scrollbar-x">
+          <div class="tape-cap">#</div>
           <div
             v-for="(cell, i) in tape"
             :key="i"
             :class="['tape-cell', cell.status]"
-          >
-            {{ cell.ch }}
-          </div>
+          >{{ cell.ch }}</div>
+          <div class="tape-cap">#</div>
         </div>
       </div>
 
       <!-- State & Result -->
       <div class="status-row">
-        <div class="current-state-box" v-if="simResult && currentState">
-          <span class="label">Current State</span>
+        <div class="current-state-box" v-if="currentState">
+          <span class="slabel">Current State</span>
           <div :class="['state-badge', done ? (resultAccepted ? 'ok' : 'fail') : 'active']">
             {{ currentState }}
           </div>
         </div>
 
         <div class="read-char-box" v-if="currentStep?.char != null">
-          <span class="label">Reading</span>
+          <span class="slabel">Reading</span>
           <div class="char-badge">{{ currentStep.char }}</div>
         </div>
 
@@ -525,9 +634,15 @@ onUnmounted(() => {
 
     </div>
 
-    <!-- SVG Visualization -->
+    <!-- SVG canvas -->
     <div class="viz-container">
       <svg ref="svgRef"></svg>
+      <!-- Current state indicator overlay -->
+      <div v-if="simResult && currentState" class="current-indicator">
+        <span class="ci-dot"></span>
+        <span class="ci-label">{{ currentState }}</span>
+        <span class="ci-sub">CURRENT</span>
+      </div>
     </div>
 
   </div>
@@ -537,17 +652,11 @@ onUnmounted(() => {
 .dfa-wrap {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-
-    max-width: 900px;
-    margin: 20px auto;
-    padding: 1.2rem;
-
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-
-    font-family: 'Inter', 'Segoe UI', sans-serif;
+    gap: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    font-family: 'Space Mono', monospace;
 }
 
 /* Header */
@@ -556,127 +665,166 @@ onUnmounted(() => {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(13, 13, 20, 0.8);
+    border-bottom: 1px solid #1a2535;
 }
+
 .header-left {
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    gap: 8px;
 }
+
 .badge {
-    background: #1e1e2e;
-    color: #cdd6f4;
-    font-size: 11px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+    background: rgba(0, 229, 255, 0.1);
+    color: #00e5ff;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     padding: 3px 8px;
-    border-radius: 5px;
+    border-radius: 3px;
+    border: 1px solid rgba(0, 229, 255, 0.25);
+    text-transform: uppercase;
 }
+
 .title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1e1e2e;
+    font-size: 13px;
+    font-weight: 700;
+    color: #c8d0e0;
+    letter-spacing: 0.05em;
 }
+
 .header-right {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 12px;
 }
+
+.leg-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10px;
+    color: #4a6a8a;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
 .dot {
     width: 8px;
     height: 8px;
-    border-radius: 50%;
+    border-radius: 2px;
     display: inline-block;
 }
-.start-dot  { background: #ff9800; }
-.state-dot  { background: #2196f3; margin-left: 0.6rem; }
-.accept-dot { background: #10b981; margin-left: 0.6rem; }
-.leg {
-    font-size: 12px;
-    color: #6b7280;
-}
+
+.start-dot  { background: #f0a500; }
+.state-dot  { background: #2d6a9f; }
+.accept-dot { background: #c8ff00; }
 
 /* Regex */
 .regex-wrap {
     display: flex;
     align-items: flex-start;
-    gap: 0.6rem;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    padding: 0.6rem 0.9rem;
+    gap: 8px;
+    background: rgba(13, 15, 24, 0.9);
+    border-bottom: 1px solid #1a2535;
+    padding: 8px 16px;
 }
+
 .regex-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
-    letter-spacing: 0.06em;
+    font-size: 9px;
+    font-weight: 700;
+    color: #2d4a6b;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     padding-top: 2px;
     white-space: nowrap;
+    flex-shrink: 0;
 }
+
 .regex-code {
-    font-family: 'Courier New', monospace;
-    font-size: 13px;
-    color: #334155;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    color: #6a9fd8;
     word-break: break-all;
     line-height: 1.6;
 }
 
-/* Simulation status card */
+/* Simulation status */
 .simulation-status-card {
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    background: #fff;
-    padding: 12px;
+    border-bottom: 1px solid #1a2535;
+    background: rgba(10, 12, 20, 0.95);
+    padding: 10px 16px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
 .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #94a3b8;
+    font-size: 9px;
+    font-weight: 700;
+    color: #2d4a6b;
     text-transform: uppercase;
-    margin-bottom: 4px;
+    letter-spacing: 0.12em;
+    margin-bottom: 5px;
 }
 
 /* Tape */
 .tape-container {
     display: flex;
-    gap: 4px;
-    padding: 4px 0;
+    gap: 3px;
     overflow-x: auto;
+    padding: 2px 0;
 }
-.tape-cell {
-    min-width: 30px;
-    height: 30px;
+
+.tape-cap {
+    min-width: 26px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    font-family: monospace;
-    font-weight: bold;
-    font-size: 14px;
-    transition: all 0.2s;
-    background: #f8fafc;
-}
-.tape-cell.done {
-    background: #f0fdf4;
-    color: #16a34a;
-    border-color: #bbf7d0;
-}
-.tape-cell.active {
-    background: #fffbeb;
-    color: #d97706;
-    border-color: #fde68a;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    color: #2d4a6b;
+    border: 1px solid #1a2535;
+    border-radius: 3px;
+    background: #0a0c14;
 }
 
-/* Status Row */
+.tape-cell {
+    min-width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #1e2d3d;
+    border-radius: 3px;
+    font-family: 'Space Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    transition: all 0.2s ease;
+    background: #111827;
+    color: #4a6a8a;
+}
+
+.tape-cell.done {
+    background: rgba(0, 229, 255, 0.05);
+    color: #00e5ff;
+    border-color: rgba(0, 229, 255, 0.2);
+}
+
+.tape-cell.active {
+    background: rgba(0, 229, 255, 0.15);
+    color: #00e5ff;
+    border-color: #00e5ff;
+    transform: translateY(-2px);
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+}
+
+/* Status row */
 .status-row {
     display: flex;
     align-items: center;
@@ -684,75 +832,152 @@ onUnmounted(() => {
     flex-wrap: wrap;
 }
 
-.label {
-    font-size: 10px;
-    font-weight: 600;
-    color: #94a3b8;
+.slabel {
+    font-size: 9px;
+    font-weight: 700;
+    color: #2d4a6b;
     text-transform: uppercase;
+    letter-spacing: 0.1em;
     display: block;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .state-badge {
-    padding: 4px 12px;
-    border-radius: 6px;
-    font-weight: bold;
-    font-size: 13px;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.08em;
     border: 1px solid transparent;
 }
-.state-badge.active { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
-.state-badge.ok     { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
-.state-badge.fail   { background: #fef2f2; color: #b91c1c; border-color: #fecaca; }
+
+.state-badge.active {
+    background: rgba(0, 229, 255, 0.1);
+    color: #00e5ff;
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 0 8px rgba(0, 229, 255, 0.2);
+}
+
+.state-badge.ok {
+    background: rgba(200, 255, 0, 0.1);
+    color: #c8ff00;
+    border-color: rgba(200, 255, 0, 0.3);
+    box-shadow: 0 0 8px rgba(200, 255, 0, 0.2);
+}
+
+.state-badge.fail {
+    background: rgba(255, 68, 68, 0.1);
+    color: #ff4444;
+    border-color: rgba(255, 68, 68, 0.3);
+}
 
 .char-badge {
-    padding: 4px 10px;
-    background: #fffbeb;
-    color: #b45309;
-    border: 1px solid #fde68a;
-    border-radius: 6px;
-    font-weight: bold;
-    font-family: monospace;
+    padding: 3px 10px;
+    background: rgba(240, 165, 0, 0.1);
+    color: #f0a500;
+    border: 1px solid rgba(240, 165, 0, 0.3);
+    border-radius: 3px;
+    font-weight: 700;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
 }
 
 .banner {
-    padding: 6px 14px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
+    padding: 5px 12px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
 }
-.banner-ok   { background: #16a34a; color: white; }
-.banner-fail { background: #dc2626; color: white; }
+
+.banner-ok   {
+    background: rgba(200, 255, 0, 0.12);
+    color: #c8ff00;
+    border: 1px solid rgba(200, 255, 0, 0.3);
+    box-shadow: 0 0 12px rgba(200, 255, 0, 0.2);
+}
+
+.banner-fail {
+    background: rgba(255, 68, 68, 0.12);
+    color: #ff4444;
+    border: 1px solid rgba(255, 68, 68, 0.3);
+}
 
 /* Viz container */
 .viz-container {
-    border: 1px solid #f1f5f9;
-    border-radius: 8px;
-    background: #fafafa;
+    flex: 1;
+    position: relative;
     overflow: hidden;
+    min-height: 320px;
 }
 
+.viz-container svg {
+    width: 100%;
+    height: 100%;
+    min-height: 320px;
+}
+
+/* Current state indicator */
+.current-indicator {
+    position: absolute;
+    bottom: 12px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(0, 229, 255, 0.08);
+    border: 1px solid rgba(0, 229, 255, 0.2);
+    border-radius: 3px;
+    padding: 4px 10px;
+}
+
+.ci-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #00e5ff;
+    box-shadow: 0 0 6px #00e5ff;
+    animation: blink 1s ease-in-out infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+}
+
+.ci-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #00e5ff;
+    letter-spacing: 0.06em;
+}
+
+.ci-sub {
+    font-size: 8px;
+    color: #2d4a6b;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-left: 2px;
+}
+
+/* Invalid warning */
 .invalid-warning {
-    background: #fef2f2;
-    color: #991b1b;
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid #fee2e2;
-    font-size: 13px;
+    background: rgba(255, 68, 68, 0.08);
+    color: #ff6b6b;
+    padding: 6px 16px;
+    border-bottom: 1px solid rgba(255, 68, 68, 0.2);
+    font-size: 11px;
     font-weight: 500;
+    letter-spacing: 0.04em;
 }
 
+/* Animations */
 .pop-enter-active { animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 @keyframes popIn {
   from { transform: scale(0.9); opacity: 0; }
   to   { transform: scale(1);    opacity: 1; }
 }
 
-/* Hide scrollbar */
-.no-scrollbar-x {
-  scrollbar-width: none;
-}
-.no-scrollbar-x::-webkit-scrollbar {
-  display: none;
-}
+.no-scrollbar-x { scrollbar-width: none; }
+.no-scrollbar-x::-webkit-scrollbar { display: none; }
 </style>
-
