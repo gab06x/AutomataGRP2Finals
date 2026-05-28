@@ -6,15 +6,15 @@
 
 .problem-selector {
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  flex-direction: row;
+  gap: 12px;
 }
 
 .radio-card {
   display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  padding: 10px 12px;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
   border-radius: 3px;
   border: 1px solid #1e2d3d;
   cursor: pointer;
@@ -84,16 +84,7 @@
   font-weight: 700;
 }
 
-/* Active label - like reference "ACTIVE" tag */
-.radio-card input:checked ~ .label-text::after {
-  content: "ACTIVE";
-  display: block;
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  color: rgba(0, 229, 255, 0.5);
-  margin-top: 3px;
-}
+/* Active label indicator removed to save horizontal space */
 
 /* Selected card border highlight */
 .radio-card:has(input:checked) {

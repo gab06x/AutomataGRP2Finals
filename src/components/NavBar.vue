@@ -24,6 +24,11 @@ onMounted(() => {
       <span class="nav-version">v1.0.0</span>
     </div>
 
+    <!-- Center Slot (Regex Selection) -->
+    <div class="nav-center">
+      <slot name="center"></slot>
+    </div>
+
     <!-- Right Actions -->
     <div class="nav-actions">
       <button class="manual-btn" @click="$emit('open-manual')">
@@ -100,6 +105,14 @@ onMounted(() => {
   margin-left: 2px;
 }
 
+.nav-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 24px;
+}
+
 .nav-actions {
   display: flex;
   align-items: center;
@@ -135,6 +148,7 @@ onMounted(() => {
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(0, 229, 255, 0.03), transparent);
   animation: navScan 6s linear infinite;
+  pointer-events: none;
 }
 
 @keyframes navScan {

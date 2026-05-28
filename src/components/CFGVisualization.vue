@@ -195,7 +195,7 @@ const derivationSteps = computed(() => {
           <span>Productions</span>
           <span class="rule-count">{{ cfg.productions.length }} rules</span>
         </div>
-        <div class="rule-list no-scrollbar-x">
+        <div class="rule-list">
           <div
             v-for="(prod, idx) in cfg.productions"
             :key="idx"
@@ -228,11 +228,9 @@ const derivationSteps = computed(() => {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00e5ff" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
             DERIVATION TRACE
           </span>
-          <span class="rule-count" v-if="testString">Running</span>
-          <span class="rule-count" v-else>Waiting for input</span>
         </div>
         
-        <div class="trace-container no-scrollbar-x" v-if="testString">
+        <div class="trace-container" v-if="testString">
           <div class="trace-list">
             <div 
               v-for="step in derivationSteps" 
@@ -260,7 +258,7 @@ const derivationSteps = computed(() => {
           </div>
         </div>
         <div class="empty-state" v-else>
-          Enter a test string below to see the leftmost derivation trace.
+          Enter a test string in the Test Terminal.
         </div>
       </div>
     </div>
@@ -372,7 +370,9 @@ const derivationSteps = computed(() => {
   display: grid;
   grid-template-columns: 1fr 1.5fr;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
+  flex: 1;
+  min-height: 0;
 }
 
 @media (max-width: 1000px) {
@@ -416,16 +416,17 @@ const derivationSteps = computed(() => {
 .rule-list {
   display: flex;
   flex-direction: column;
-  max-height: 400px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
 }
 
 .rule-row {
   display: flex;
   align-items: flex-start;
-  padding: 10px 16px;
+  padding: 6px 12px;
   border-bottom: 1px solid rgba(30, 45, 61, 0.3);
-  font-size: 13px;
+  font-size: 12px;
   transition: background 0.2s;
   position: relative;
 }

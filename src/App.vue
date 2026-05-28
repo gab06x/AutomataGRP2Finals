@@ -58,8 +58,8 @@ const dfaViewTrace = computed(() => {
   return dfaTraces.value[idx] || null
 })
 
-// --- What string the CFG should derive ---
-const cfgTestString = computed(() => {
+// --- What string should be shown in the input tape and derived in CFG ---
+const activeTestString = computed(() => {
   const idx = activeViewIdx.value >= 0 ? activeViewIdx.value : currentSimIndex.value
   if (idx >= 0) return testStrings.value[idx] || ''
   return currentTestString.value
@@ -159,22 +159,22 @@ const onClearAll = () => {
 </script>
 
 <template>
-  <NavBar @open-manual="isManualOpen = true" />
-
-  <div class="app-shell">
-    <!-- ===== LEFT SIDEBAR ===== -->
-    <aside class="sidebar">
-
-      <div class="sidebar-section">
-        <div class="sidebar-label">Regex Selection <span v-if="isSimulating" class="label-lock">🔒</span></div>
+  <NavBar @open-manual="isManualOpen = true">
+    <template #center>
+      <div class="nav-regex-selection">
+        <span class="nav-regex-label">Regex Selection <span v-if="isSimulating" class="label-lock">🔒</span></span>
         <Problems
           :problems="problems"
           v-model="selectedProblemIndex"
           :disabled="isSimulating"
         />
       </div>
+    </template>
+  </NavBar>
 
-      <div class="sidebar-divider"></div>
+  <div class="app-shell">
+    <!-- ===== LEFT SIDEBAR ===== -->
+    <aside class="sidebar">
 
       <template v-if="selectedProblemIndex !== -1">
 
@@ -238,23 +238,9 @@ const onClearAll = () => {
       <!-- String selector bar (shown when strings are available) -->
       <div
         class="str-selector-bar"
-        v-if="selectedProblemIndex !== -1 && activeAutomata !== 'manual' && testStrings.some(s => s)"
+        v-if="selectedProblemIndex !== -1 && activeAutomata !== 'manual' && activeAutomata !== 'pda' && testStrings.some(s => s)"
       >
         <span class="str-sel-label">View:</span>
-
-        <!-- Current Sim pill -->
-        <button
-          class="str-pill"
-          :class="{ 'sp-active': activeViewIdx === -1 }"
-          @click="activeViewIdx = -1"
-          :disabled="isRunningAll"
-          title="Follow the currently running simulation"
-        >
-          <span class="sp-live-dot" :class="{ 'sp-live-dot--anim': isRunningAll || currentSimIndex >= 0 }"></span>
-          Current Sim
-        </button>
-
-        <div class="str-sel-sep"></div>
 
         <!-- One pill per non-empty string -->
         <template v-for="(str, idx) in testStrings" :key="idx">
@@ -286,7 +272,7 @@ const onClearAll = () => {
           <div v-show="activeAutomata === 'dfa'" class="viz-inner">
             <Diagram
               :problemId="problems[selectedProblemIndex].id"
-              :testString="currentTestString"
+              :testString="activeTestString"
               :simKey="simulationKey"
               :simIndex="currentSimIndex"
               :viewTrace="dfaViewTrace"
@@ -296,7 +282,7 @@ const onClearAll = () => {
           <div v-show="activeAutomata === 'cfg'" class="viz-inner">
             <CFGVisualization
               :problemId="problems[selectedProblemIndex].id"
-              :testString="cfgTestString"
+              :testString="activeTestString"
             />
           </div>
           <div v-show="activeAutomata === 'pda'" class="viz-inner">
@@ -416,6 +402,28 @@ const onClearAll = () => {
   display: flex;
   align-items: center;
   opacity: 0.7;
+}
+
+/* Nav Regex Selection */
+.nav-regex-selection {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(0, 229, 255, 0.03);
+  border: 1px solid rgba(0, 229, 255, 0.1);
+  padding: 4px 12px;
+  border-radius: 6px;
+}
+
+.nav-regex-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #2d4a6b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ===== MAIN PANEL ===== */

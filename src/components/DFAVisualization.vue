@@ -641,6 +641,9 @@ onUnmounted(() => {
         <span class="badge">DFA</span>
         <span class="title">Problem {{ problemId }}</span>
       </div>
+      <div class="header-center">
+        <span class="attribution">Assigned to Gab (Regex 1) & Gian (Regex 2)</span>
+      </div>
       <div class="header-right">
         <span class="leg-item"><span class="dot start-dot"></span>Start</span>
         <span class="leg-item"><span class="dot state-dot"></span>State</span>
@@ -762,16 +765,32 @@ onUnmounted(() => {
 }
 
 .title {
-    font-size: 13px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 20px;
     font-weight: 700;
-    color: #c8d0e0;
+    color: #fff;
     letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
 .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.attribution {
+  font-size: 10px;
+  color: #4a6a8a;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .leg-item {

@@ -31,37 +31,35 @@ const emit = defineEmits(['close'])
       <section>
         <h2>Interface Layout</h2>
 
-        <h3>Left Sidebar</h3>
+        <h3>Top Navbar</h3>
         <ul>
-          <li><strong>Active Problem card</strong> — Shows which regex problem is currently loaded.</li>
-          <li><strong>Regex Selection</strong> — Click Problem 1 or Problem 2 to load that problem's DFA, CFG, and PDA.</li>
-          <li><strong>Quick Access</strong> — Jump directly to the DFA, CFG, or PDA view for the active problem.</li>
+          <li><strong>Regex Selection</strong> — Located at the very top. Click Problem 1 or Problem 2 to load that problem's DFA, CFG, and PDA.</li>
+          <li><strong>User Manual</strong> — Slide-out side panel for guidance.</li>
         </ul>
 
-        <h3>Tab Bar</h3>
-        <p>Switch between the three visualizer panels:</p>
-        <ul>
-          <li><strong>DFA</strong> — Animated state-machine diagram with tape and accept/reject banner.</li>
-          <li><strong>CFG</strong> — Grammar production rules + step-by-step leftmost derivation trace.</li>
-          <li><strong>PDA</strong> — Structural pushdown automaton diagram.</li>
-        </ul>
-
-        <h3>String Selector Bar <span class="badge-inline">View:</span></h3>
-        <p>Appears below the tab bar once you have typed at least one test string.</p>
-        <ul>
-          <li><strong>Current Sim</strong> — (default) Tracks whatever string is currently being animated. Returns to this mode after browsing history.</li>
-          <li><strong>Numbered pills (1–5)</strong> — Click any pill to instantly view that string's stored DFA result and CFG derivation without re-running the animation. The pill turns <span class="col-green">green ✓</span> or <span class="col-red">red ✗</span> after its simulation completes. Click the same pill again to toggle back to Current Sim.</li>
-          <li>Pills are <em>disabled</em> during an active Run All to prevent conflicts.</li>
-        </ul>
-
-        <h3>Test Terminal <span class="badge-inline">sidebar</span></h3>
-        <p>The main input area, located in the left sidebar under Quick Access. You can enter up to <strong>5 test strings</strong> simultaneously.</p>
+        <h3>Left Sidebar (Test Terminal)</h3>
+        <p>The main input area. You can enter up to <strong>5 test strings</strong> simultaneously.</p>
         <ul>
           <li>Each row shows two badges: a <strong>Regex badge</strong> (instant pattern match check) and a <strong>DFA badge</strong> (result after simulation).</li>
           <li><strong>Run</strong> — Simulates a single row's string on the DFA and updates the CFG derivation.</li>
           <li><strong>Run All</strong> — Simulates strings 1 → 5 in sequence, animating each one before advancing.</li>
           <li><strong>Cancel</strong> — Stops a Run All mid-sequence.</li>
           <li><strong>Clear All</strong> — Clears all five inputs and resets all results and stored traces.</li>
+        </ul>
+
+        <h3>Main View Tabs</h3>
+        <p>Switch between the three visualizer panels at the top of the main canvas:</p>
+        <ul>
+          <li><strong>State Map (DFA)</strong> — Animated state-machine diagram with tape and accept/reject banner.</li>
+          <li><strong>CFG Tree</strong> — Grammar production rules + step-by-step leftmost derivation trace.</li>
+          <li><strong>Execution Logs (PDA)</strong> — Structural pushdown automaton diagram.</li>
+        </ul>
+
+        <h3>String Selector Bar <span class="badge-inline">View:</span></h3>
+        <p>Appears below the tab bar once you have typed at least one test string.</p>
+        <ul>
+          <li><strong>Numbered pills (1–5)</strong> — Click any pill to instantly view that string's stored DFA result and CFG derivation without re-running the animation. The pill turns <span class="col-green">green ✓</span> or <span class="col-red">red ✗</span> after its simulation completes. Click the same pill again to return to the active terminal string.</li>
+          <li>Pills are <em>disabled</em> during an active Run All to prevent conflicts.</li>
         </ul>
       </section>
 
@@ -115,6 +113,9 @@ const emit = defineEmits(['close'])
           This is a <strong>static reference model</strong> illustrating the stack transitions (push / pop / read)
           that back up the DFA and CFG.
         </p>
+        <ul>
+          <li><strong>Fullscreen Preview</strong> — Click directly on the PDA image to open a large, fully responsive fullscreen overlay for detailed inspection.</li>
+        </ul>
       </section>
 
       <!-- PROBLEMS -->
