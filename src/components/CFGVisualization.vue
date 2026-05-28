@@ -16,7 +16,7 @@ const CFG_DATA = {
             { lhs: 'C', alts: ['aC', 'λ'] },
             { lhs: 'D', alts: ['C', 'B'] },
             { lhs: 'E', alts: ['abE', 'λ'] },
-            { lhs: 'F', alts: ['babF', 'abaF', 'λ'] },
+            { lhs: 'F', alts: ['bab', 'aba'] },
             { lhs: 'G', alts: ['aG', 'bG', 'λ'] },
         ],
         terminals: ['a', 'b', 'λ', '(', ')'],
