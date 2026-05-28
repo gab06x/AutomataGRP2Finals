@@ -102,6 +102,15 @@
   box-shadow: 0 0 10px rgba(0, 229, 255, 0.08);
 }
 
+/* Disabled State */
+.radio-card.disabled-card {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  border-color: #1e2d3d;
+  background: #0d0d14;
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 768px) {
   .radio-card {

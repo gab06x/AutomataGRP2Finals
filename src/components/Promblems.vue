@@ -3,7 +3,8 @@ import { computed } from 'vue'
 
 const props = defineProps({
     problems: { type: Array, required: true },
-    modelValue: { type: Number, required: true }
+    modelValue: { type: Number, required: true },
+    disabled: { type: Boolean, default: false }
 })
 
 const emit = defineEmits(['update:modelValue'])
@@ -21,12 +22,14 @@ const selectedProblem = computed({
         v-for="(prob, index) in problems" 
         :key="prob.id" 
         class="radio-card"
+        :class="{ 'disabled-card': disabled }"
       >
         <input 
           type="radio" 
           name="problem" 
           :value="index" 
           v-model="selectedProblem" 
+          :disabled="disabled"
         />
         <span class="radio-custom"></span>
 

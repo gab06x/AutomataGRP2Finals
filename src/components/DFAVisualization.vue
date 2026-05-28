@@ -1,12 +1,16 @@
 <script setup>
-import { ref, watch, onMounted, computed, onUnmounted } from 'vue'
+import { ref, watch, onMounted, computed, onUnmounted, nextTick } from 'vue'
 import * as d3 from 'd3'
 
 const props = defineProps({
-    problemId: { type: Number, required: true },
-    testString: { type: String, default: '' },
-    simKey: { type: Number, default: 0 }
+    problemId:  { type: Number,  required: true },
+    testString: { type: String,  default: ''    },
+    simKey:     { type: Number,  default: 0     },
+    simIndex:   { type: Number,  default: -1    },  // which input row is being simulated
+    viewTrace:  { type: Object,  default: null  }   // stored trace to display statically (no animation)
 })
+
+const emit = defineEmits(['simulation-done'])
 
 const svgRef = ref(null)
 const stepIndex = ref(0)
@@ -307,6 +311,33 @@ const advance = (result, idx) => {
   highlightElements()
 
   if (idx + 1 >= result.steps.length - 1) done.value = true
+
+  // Animate a glowing token along the active edge
+  if (from && to && svgRef.value) {
+    const svg = d3.select(svgRef.value);
+    const pathNode = svg.select(`path[id^="link-${from}-${to}-"]`).node();
+    if (pathNode) {
+      svg.selectAll('.moving-token').remove();
+      const token = svg.append('circle')
+        .attr('class', 'moving-token')
+        .attr('r', 5)
+        .attr('fill', '#ffffff')
+        .style('filter', 'drop-shadow(0 0 6px #00e5ff) drop-shadow(0 0 10px #00e5ff)');
+
+      const l = pathNode.getTotalLength();
+      
+      token.transition()
+        .duration(780) // slightly under the 800ms interval for smoothness
+        .ease(d3.easeLinear)
+        .attrTween('transform', function() {
+            return function(t) {
+                const p = pathNode.getPointAtLength(t * l);
+                return `translate(${p.x}, ${p.y})`;
+            };
+        })
+        .on('end', () => token.remove());
+    }
+  }
 }
 
 const runAuto = () => {
@@ -328,6 +359,8 @@ const runAuto = () => {
       isRunning.value = false
       done.value = true
       highlightElements()
+      // Notify parent of simulation result (include steps so parent can cache it)
+      emit('simulation-done', { index: props.simIndex, accepted: result.accepted, steps: result.steps })
       return
     }
     advance(result, idx)
@@ -351,6 +384,7 @@ const doReset = () => {
       d3.select(svgRef.value).selectAll('path.edge')
         .attr('stroke', '#2d4a6b')
         .attr('stroke-width', 1.5)
+      d3.select(svgRef.value).selectAll('.moving-token').remove()
   }
 }
 
@@ -551,10 +585,24 @@ const renderDFA = () => {
            .style("width", "100%")
            .style("max-width", "100%")
            .style("height", "100%")
-           .style("min-height", "380px");
+           .style("min-height", null);   // let CSS flex handle sizing
     }
     simulation.stop();
 };
+
+// When a stored trace is set by the parent (user browsing history), show its final state instantly
+watch(() => props.viewTrace, (trace) => {
+    if (!trace) return
+    // Stop any live animation
+    clearInterval(autoTimer.value)
+    autoTimer.value = null
+    isRunning.value = false
+    // Jump to final state
+    simResult.value = trace
+    stepIndex.value = trace.steps.length - 1
+    done.value = true
+    nextTick(() => highlightElements())
+})
 
 watch(() => props.problemId, () => {
     doReset();
@@ -676,8 +724,11 @@ onUnmounted(() => {
     gap: 0;
     width: 100%;
     height: 100%;
+    min-height: 0;
+    flex: 1;
     background: transparent;
     font-family: 'Space Mono', monospace;
+    overflow: hidden;
 }
 
 /* Header */
@@ -929,13 +980,13 @@ onUnmounted(() => {
     flex: 1;
     position: relative;
     overflow: hidden;
-    min-height: 320px;
+    min-height: 0;
 }
 
 .viz-container svg {
     width: 100%;
     height: 100%;
-    min-height: 320px;
+    display: block;
 }
 
 /* Current state indicator */
