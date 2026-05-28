@@ -10,7 +10,7 @@ const CFG_DATA = {
     1: {
         startSymbol: 'S',
         productions: [
-            { lhs: 'S', alts: ['A B C D E (aba) F (bb) G F G'] },
+            { lhs: 'S', alts: ['A B C D E (aba) H (bb) G F G'] },
             { lhs: 'A', alts: ['bab', 'bbb'] },
             { lhs: 'B', alts: ['bB', 'λ'] },
             { lhs: 'C', alts: ['aC', 'λ'] },
@@ -18,9 +18,10 @@ const CFG_DATA = {
             { lhs: 'E', alts: ['abE', 'λ'] },
             { lhs: 'F', alts: ['bab', 'aba'] },
             { lhs: 'G', alts: ['aG', 'bG', 'λ'] },
+            { lhs: 'H', alts: ['babH', 'abaH', 'λ'] },
         ],
         terminals: ['a', 'b', 'λ', '(', ')'],
-        nonTerminals: ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G']
+        nonTerminals: ['S', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']
     },
     2: {
         startSymbol: 'S',
